@@ -8,6 +8,7 @@
 
 #import "UsherIPADAppDelegate.h"
 #import "UsherIPADFileReader.h"
+#import "UsherDataStructure.h"
 
 @implementation UsherIPADAppDelegate
 
@@ -16,8 +17,36 @@
 //    self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     UsherIPADFileReader *aReader = [[UsherIPADFileReader alloc] init];
     [aReader setFilename:@"Usher-selectedUsers"];
-    [aReader readDataFromFileAndCreateObject];
+    UsherTimeSeries* allData = [[UsherTimeSeries alloc] init];
+    [allData setTransactions:[aReader readDataFromFileAndCreateObject]];
+  
+    NSMutableDictionary *timeSeries = [[NSMutableDictionary alloc] init];
+    //aggreagation level= hourly
+    NSNumber* max = [allData.transactions valueForKeyPath: @"@max.transTimeStamp"];
+    NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
+    int aggregation = 15;
+    int buckets = ([max doubleValue]-[min doubleValue])/(aggregation*1.0) +1;
+    NSLog(@"%@, %@, %d", max, min, buckets);
+    //the finest level of aggregation is done here before creating the time series
+    for(UsherDataStructure* aTrans in allData.transactions){
+        id ky= [NSNumber numberWithInt:(int)((aTrans.transTimeStamp - [min doubleValue])/aggregation)];
+        int obvalue = ([timeSeries objectForKey:ky]==nil)?1:([[timeSeries objectForKey:ky] integerValue]+1);
+        [timeSeries setObject:[NSNumber numberWithInt:obvalue] forKey: ky];
+    }
+    [allData setTimeSeries:timeSeries];
     
+    NSArray *sortedKeys = [[allData.timeSeries allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    //    NSMutableArray *sortedValues = [NSMutableArray array];
+    //    for (NSString *key in sortedKeys)
+    //        [sortedValues addObject: [timeSeries objectForKey: key]];
+    
+    int c = 0 ;
+    //sorting will be used for visualizing
+    for(id ky in sortedKeys){
+        NSLog(@"%@, %@", ky, [allData.timeSeries objectForKey:ky]);
+        c+=[[timeSeries objectForKey:ky] intValue];
+    }
+    //    NSLog(@"%d", c);
 
     return YES;
 }

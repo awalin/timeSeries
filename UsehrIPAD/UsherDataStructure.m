@@ -13,21 +13,19 @@
 -(UsherDataStructure*) createDataObject:(NSArray *) fromFile{
     
         
-        [self setTransId:[fromFile objectAtIndex:0]];
-        [self setTransType:[fromFile objectAtIndex:2]];
-        [self setSuccess:[fromFile objectAtIndex:4]];
-        [self setWeekDay:[fromFile objectAtIndex:13]];
-        [self setMonth:[fromFile objectAtIndex:14] ];
+    [self setTransId:[fromFile objectAtIndex:0]];
+    [self setTransType:[fromFile objectAtIndex:2]];
+    [self setSuccess:[fromFile objectAtIndex:4]];
+    [self setWeekDay:[fromFile objectAtIndex:13]];
+    [self setMonth:[fromFile objectAtIndex:14] ];
     
-        self.month =  [[self.month componentsSeparatedByString:@" "] objectAtIndex:1];
+    self.month =  [[self.month componentsSeparatedByString:@" "] objectAtIndex:1];
     
-        NSCharacterSet *doNotWant = [NSCharacterSet characterSetWithCharactersInString:@"\" "];
-        self.weekDay = [[self.weekDay componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
+    NSCharacterSet *doNotWant = [NSCharacterSet characterSetWithCharactersInString:@"\" "];
+    self.weekDay = [[self.weekDay componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
     
-    
-    
-        [self setYear:[fromFile objectAtIndex:15]];
-        self.year = [[self.year componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
+    [self setYear:[fromFile objectAtIndex:15]];
+    self.year = [[self.year componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
  
     NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     NSTimeZone *timeZone = [NSTimeZone localTimeZone];
@@ -37,11 +35,14 @@
     NSDate *dateTime = [formatter dateFromString:stringTime];
     
     [self setTransDate:dateTime];
-    [self setTransTimeStamp: [self.transDate timeIntervalSince1970]];
-    
+    [self setTransTimeStamp: round([self.transDate timeIntervalSince1970]/60000.00 + 0.5)]; // Convert to minutes
 //    NSLog(@":%@,%@,%@,%f,%@", self.month, self.year, self.weekDay, self.transTimeStamp, self.transDate);
-    
+
     return self;
 }
+
+//AGgregate every 15, 30, 0r 60 minutes, based on the pixel avaliable per aggregation level.
+
+
 
 @end

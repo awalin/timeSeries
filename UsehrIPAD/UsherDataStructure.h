@@ -21,9 +21,6 @@
 @property NSString *transUserId;
 @property NSString *success;
 
-
-@property (strong) NSArray  *transactions;
-
 -(UsherDataStructure*) createDataObject:(NSArray *) fromFile;
 
 @end
