@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="1jZ-Le-N2Q">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+    </dependencies>
+    <scenes>
+        <!--UsherIPAD Parent View Controller-->
+        <scene sceneID="Usq-Ji-7jx">
+            <objects>
+                <viewController id="1jZ-Le-N2Q" customClass="UsherIPADParentViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Y4k-Mx-ueb"/>
+                        <viewControllerLayoutGuide type="bottom" id="Icp-Ny-oDT"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="x4P-Kn-fz6">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <view contentMode="scaleAspectFill" translatesAutoresizingMaskIntoConstraints="NO" id="b3r-Xq-hmH" customClass="UsherVizContainer">
+                                <rect key="frame" x="44" y="12" width="246" height="428"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Timeseries" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jJu-lF-2lN">
+                                        <rect key="frame" x="82" y="7" width="83" height="17"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.60602724415544917" green="0.89500219213639287" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <accessibility key="accessibilityConfiguration">
+                                    <bool key="isElement" value="YES"/>
+                                </accessibility>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="b3r-Xq-hmH" firstAttribute="leading" secondItem="x4P-Kn-fz6" secondAttribute="leading" constant="44" id="Dcm-2F-Whq"/>
+                            <constraint firstItem="Icp-Ny-oDT" firstAttribute="top" secondItem="b3r-Xq-hmH" secondAttribute="bottom" constant="40" id="UWj-ap-iM4"/>
+                            <constraint firstAttribute="trailing" secondItem="b3r-Xq-hmH" secondAttribute="trailing" constant="30" id="kOs-1Q-XIi"/>
+                            <constraint firstItem="b3r-Xq-hmH" firstAttribute="top" secondItem="x4P-Kn-fz6" secondAttribute="top" constant="12" id="lzh-dD-8oT"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="timeseriesView" destination="b3r-Xq-hmH" id="aCs-dL-6Qp"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="eRG-da-Jp3" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="441" y="477"/>
+        </scene>
+    </scenes>
+    <simulatedMetricsContainer key="defaultSimulatedMetrics">
+        <simulatedStatusBarMetrics key="statusBar"/>
+        <simulatedOrientationMetrics key="orientation"/>
+        <simulatedScreenMetrics key="destination"/>
+    </simulatedMetricsContainer>
+</document>

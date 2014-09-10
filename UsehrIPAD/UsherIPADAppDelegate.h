@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "UsherTimeSeries.h"
 
 @interface UsherIPADAppDelegate : UIResponder <UIApplicationDelegate>
 

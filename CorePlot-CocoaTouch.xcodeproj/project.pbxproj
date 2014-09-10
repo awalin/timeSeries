@@ -1199,6 +1199,11 @@
 		0799D97B137318CF0026072C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				"HEADER_SEARCH_PATHS[arch=*]" = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+				);
+				"OTHER_LDFLAGS[arch=*]" = "-ObjC";
 				PRODUCT_NAME = UniversalLibrary;
 			};
 			name = Debug;
@@ -1248,10 +1253,16 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>/**",
+				);
+				"HEADER_SEARCH_PATHS[arch=*]" = "";
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACH_O_TYPE = staticlib;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-ObjC";
+				"OTHER_LDFLAGS[arch=*]" = "-all_load";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				STRIP_INSTALLED_PRODUCT = NO;
@@ -1264,6 +1275,10 @@
 			buildSettings = {
 				DEPLOYMENT_POSTPROCESSING = YES;
 				GCC_INLINES_ARE_PRIVATE_EXTERN = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>/**",
+				);
 				IPHONEOS_DEPLOYMENT_TARGET = 5.0;
 				MACH_O_TYPE = staticlib;
 				OTHER_LDFLAGS = "-ObjC";
