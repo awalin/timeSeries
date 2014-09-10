@@ -18,4 +18,18 @@
 }
 */
 
+-(id) init{
+
+   id mainview = [[[NSBundle mainBundle] loadNibNamed:@"TimeseriesView"
+                                   owner:self
+                                 options:nil]
+     objectAtIndex:0];
+    [self setFrame:CGRectMake(0,
+                              0,
+                              self.frame.size.width,
+                               self.frame.size.height)];
+    return mainview;
+
+}
+
 @end

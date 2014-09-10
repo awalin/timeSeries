@@ -7,13 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
-
+//super class for all sorts of visualization
 @interface UsherVizContainer : UIView
 
+
+@property IBOutlet UIView* xAxis;
+@property IBOutlet UIView* yAxis;
+@property IBOutlet UIView* mainViz;
+@property IBOutlet UIView* legend;
+
 @property NSString* vizType;
-@property UIView* xAxis;
-@property UIView* yAxis;
-@property UIView* mainViz;
 @property NSMutableArray* dataToDisplay;
 @property UIGestureRecognizer* gestureRecognizer;
 

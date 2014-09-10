@@ -10,6 +10,7 @@
 
 #import "UsherIPADFileReader.h"
 #import "UsherDataStructure.h"
+#import "UsherVizContainer.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation UsherIPADParentViewController
@@ -20,6 +21,15 @@
     
     
     NSLog(@"view did load");
+
+    self.timeseriesView  = [[UsherVizContainer alloc] init];
+   
+//    [self.timeseriesView setFrame:CGRectMake(0,
+//                                             0,
+//                                             self.timeseriesView.frame.size.width,
+//                                             self.timeseriesView.frame.size.height)];
+    
+    [self.view addSubview:  self.timeseriesView];
     
     //using th backing layer of the tie series plot container
     self.timeseriesView.layer.backgroundColor = [UIColor lightGrayColor].CGColor;
@@ -28,9 +38,6 @@
 
     [self readFile];
     
-
-    
-
 }
 
 -(void) readFile{
