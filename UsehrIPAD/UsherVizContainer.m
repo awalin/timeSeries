@@ -7,6 +7,7 @@
 //
 
 #import "UsherVizContainer.h"
+#import "UsherTimeSeriesViz.h"
 
 @implementation UsherVizContainer
 
@@ -18,18 +19,34 @@
 }
 */
 
--(id) init{
+//-(id) init{
+//
+//had problem with nib, creates two instance of the uiview, so the one with our assigned valu does not get the property values
+//http://stackoverflow.com/questions/2712502/uiview-drawrect-class-variables-out-of-scope
 
-   id mainview = [[[NSBundle mainBundle] loadNibNamed:@"TimeseriesView"
-                                   owner:self
-                                 options:nil]
-     objectAtIndex:0];
-    [self setFrame:CGRectMake(0,
-                              0,
-                              self.frame.size.width,
-                               self.frame.size.height)];
-    return mainview;
+//   id mainview = [[[NSBundle mainBundle] loadNibNamed:@"TimeseriesView"
+//                                   owner:self
+//                                 options:nil]
+//                        objectAtIndex:0];
+//
+//    //create the frame for the container
+//    [self setFrame:CGRectMake(0,
+//                              0,
+//                              self.frame.size.width,
+//                              self.frame.size.height)];
+//    return mainview;
+//
+//}
 
+-(void) setData:(NSMutableDictionary* )data{
+    
+    self.graphValues = data;
+    self.mainViz = [[UsherTimeseriesViz alloc] initWithFrame:CGRectMake(50, 50, 650, 400)];
+    [self addSubview:self.mainViz];
+    [self.mainViz setData:data];
+     //[self setNeedsDisplay];
+    
+    
 }
 
 @end

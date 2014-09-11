@@ -7,17 +7,26 @@
 //
 
 #import <UIKit/UIKit.h>
+@class UsherTimeseriesViz;
 //super class for all sorts of visualization
 @interface UsherVizContainer : UIView
 
 
 @property IBOutlet UIView* xAxis;
 @property IBOutlet UIView* yAxis;
-@property IBOutlet UIView* mainViz;
-@property IBOutlet UIView* legend;
+@property IBOutlet UsherTimeseriesViz* mainViz;
+//@property IBOutlet UIView* legend;
+
+
+@property NSMutableDictionary* graphValues;
+
+@property NSMutableDictionary* legends;
+@property NSMutableDictionary* yLabels;
+@property NSMutableDictionary* xLabels;
 
 @property NSString* vizType;
-@property NSMutableArray* dataToDisplay;
 @property UIGestureRecognizer* gestureRecognizer;
+
+-(void) setData:(NSMutableDictionary* )data;
 
 @end

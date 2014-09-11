@@ -42,9 +42,6 @@
                             <constraint firstItem="b3r-Xq-hmH" firstAttribute="top" secondItem="x4P-Kn-fz6" secondAttribute="top" constant="12" id="lzh-dD-8oT"/>
                         </constraints>
                     </view>
-                    <connections>
-                        <outlet property="timeseriesView" destination="b3r-Xq-hmH" id="aCs-dL-6Qp"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="eRG-da-Jp3" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>

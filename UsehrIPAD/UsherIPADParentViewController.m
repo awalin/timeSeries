@@ -22,7 +22,8 @@
     
     NSLog(@"view did load");
 
-    self.timeseriesView  = [[UsherVizContainer alloc] init];
+    self.timeseriesView  = [[UsherVizContainer alloc] initWithFrame:CGRectMake(44, 440, 245, 230)];
+
    
 //    [self.timeseriesView setFrame:CGRectMake(0,
 //                                             0,
@@ -35,9 +36,10 @@
     self.timeseriesView.layer.backgroundColor = [UIColor lightGrayColor].CGColor;
     self.timeseriesView.layer.cornerRadius = 10.0;
     self.timeseriesView.layer.frame = CGRectInset(self.view.layer.frame, 0, 0 );
-
-    [self readFile];
     
+    
+    [self readFile];
+
 }
 
 -(void) readFile{
@@ -62,19 +64,9 @@
         [timeSeries setObject:[NSNumber numberWithInt:obvalue] forKey: ky];
     }
     [allData setTimeSeries:timeSeries];
+    [self.timeseriesView setData:allData.timeSeries];
     
-    NSArray *sortedKeys = [[allData.timeSeries allKeys] sortedArrayUsingSelector: @selector(compare:)];
-    //    NSMutableArray *sortedValues = [NSMutableArray array];
-    //    for (NSString *key in sortedKeys)
-    //        [sortedValues addObject: [timeSeries objectForKey: key]];
-    
-    int c = 0 ;
-    //sorting will be used for visualizing
-    for(id ky in sortedKeys){
-        NSLog(@"%@, %@", ky, [allData.timeSeries objectForKey:ky]);
-        c+=[[timeSeries objectForKey:ky] intValue];
-    }
-    //    NSLog(@"%d", c);
-
+ 
+   
 }
 @end

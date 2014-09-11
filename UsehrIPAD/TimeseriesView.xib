@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.iPad.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="5056"/>
     </dependencies>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
@@ -10,18 +10,18 @@
             <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="center" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="d32-XU-ZDw">
-                    <rect key="frame" x="125" y="658" width="697" height="15"/>
+                <view contentMode="center" translatesAutoresizingMaskIntoConstraints="NO" id="d32-XU-ZDw">
+                    <rect key="frame" x="57" y="650" width="668" height="26"/>
                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                 </view>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TwI-8s-Vf6">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TwI-8s-Vf6" customClass="UsherTimeseriesViz">
                     <rect key="frame" x="57" y="39" width="668" height="611"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                    <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                 </view>
-                <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="CKp-9p-ggq">
-                    <rect key="frame" x="10" y="39" width="39" height="611"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CKp-9p-ggq">
+                    <rect key="frame" x="18" y="39" width="39" height="611"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                 </view>
@@ -30,9 +30,22 @@
             <accessibility key="accessibilityConfiguration" label="timeseries">
                 <bool key="isElement" value="YES"/>
             </accessibility>
+            <constraints>
+                <constraint firstItem="d32-XU-ZDw" firstAttribute="trailing" secondItem="TwI-8s-Vf6" secondAttribute="trailing" id="0tk-aB-dbQ"/>
+                <constraint firstAttribute="trailing" secondItem="TwI-8s-Vf6" secondAttribute="trailing" constant="43" id="10r-YY-o3A"/>
+                <constraint firstItem="TwI-8s-Vf6" firstAttribute="top" secondItem="CKp-9p-ggq" secondAttribute="top" id="CwS-Kc-gP0"/>
+                <constraint firstItem="d32-XU-ZDw" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="650" id="RS4-bY-ZgN"/>
+                <constraint firstAttribute="bottom" secondItem="d32-XU-ZDw" secondAttribute="bottom" constant="348" id="Upd-Be-yma"/>
+                <constraint firstItem="d32-XU-ZDw" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="57" id="b9R-DF-2uO"/>
+                <constraint firstItem="d32-XU-ZDw" firstAttribute="leading" secondItem="TwI-8s-Vf6" secondAttribute="leading" id="d0x-Ls-RnB"/>
+                <constraint firstItem="CKp-9p-ggq" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="18" id="hSl-j1-i9Q"/>
+                <constraint firstItem="CKp-9p-ggq" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="39" id="nbl-YT-cVE"/>
+                <constraint firstItem="TwI-8s-Vf6" firstAttribute="leading" secondItem="CKp-9p-ggq" secondAttribute="trailing" id="uDX-9l-hFo"/>
+                <constraint firstItem="TwI-8s-Vf6" firstAttribute="bottom" secondItem="CKp-9p-ggq" secondAttribute="bottom" id="udJ-6H-H9i"/>
+                <constraint firstItem="d32-XU-ZDw" firstAttribute="top" secondItem="TwI-8s-Vf6" secondAttribute="bottom" id="wXm-X2-ZmJ"/>
+            </constraints>
             <simulatedStatusBarMetrics key="simulatedStatusBarMetrics"/>
             <connections>
-                <outlet property="mainViz" destination="TwI-8s-Vf6" id="9V6-ti-UwK"/>
                 <outlet property="xAxis" destination="d32-XU-ZDw" id="xSG-eB-rij"/>
                 <outlet property="yAxis" destination="CKp-9p-ggq" id="VYm-c7-yhb"/>
             </connections>
