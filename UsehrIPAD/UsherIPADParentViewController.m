@@ -54,7 +54,7 @@
     //aggreagation level= hourly
     NSNumber* max = [allData.transactions valueForKeyPath: @"@max.transTimeStamp"];
     NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
-    int aggregation = 15;
+    int aggregation = 5;
     int buckets = ([max doubleValue]-[min doubleValue])/(aggregation*1.0) +1;
     NSLog(@"%@, %@, %d", max, min, buckets);
     //the finest level of aggregation is done here before creating the time series

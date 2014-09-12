@@ -20,80 +20,89 @@
  // Only override drawRect: if you perform custom drawing.
  // An empty implementation adversely affects performance during animation.*/
 
- - (void)drawRect:(CGRect)dirtyRect {
+ - (void)drawRect:(CGRect)rect {
  // Drawing code
-//     
-    [[UIColor blueColor] setFill];
-    UIRectFill(dirtyRect);
-    [super drawRect:dirtyRect];
+     if(![self dataPoints]){
+     return;
+     }
+
+
+    [[UIColor whiteColor] setFill];
+    UIRectFill(rect);
+    [super drawRect:rect];
      //SOPAN:
- //draw the layer with time series data
-//    [self drawLayer];
-     UIBezierPath *aPath = [UIBezierPath bezierPath];
+     NSLog(@"draw layers");
+     //    NSLog(@"%@",dataPoints);
+     //Drawing starts
+     NSMutableArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
+     int count = [sortedKeys count];
+     //    NSMutableArray *sortedValues = [NSMutableArray array];
+     //    for (NSString *key in sortedKeys)
+     //        [sortedValues addObject: [timeSeries objectForKey: key]];
      
      
-     // Set the starting point of the shape.
-     [aPath moveToPoint:CGPointMake(50.0, 10.0)];
+     float width = rect.size.width;
+     float height = rect.size.height;
+    NSMutableArray* points = [[NSMutableArray alloc] init];
+     //chonologically sorting, will be used for visualizing
+     for(id ky in sortedKeys){
+         NSLog(@"keys %@, %@", ky, [dataPoints objectForKey:ky]);
+         float x = [ky doubleValue]*width/(count+1);
+         float y = (681.0-[[dataPoints objectForKey:ky] doubleValue])*(height/630.0);//+height;
+         [points addObject:[NSValue valueWithCGPoint:CGPointMake(x,y)]];
+         //   c+=[[dataPoints objectForKey:ky] intValue];
+     }
+    [points addObject:[NSValue valueWithCGPoint:CGPointMake(width,height)]];
+
      
-     // Draw the lines.
-     [aPath addLineToPoint:CGPointMake(200.0, 30.0)];
-     [aPath addLineToPoint:CGPointMake(160, 140)];
-     [aPath addLineToPoint:CGPointMake(40.0, 140)];
-     [aPath addLineToPoint:CGPointMake(0.0, 40.0)];
-     [aPath closePath];
-//     // Create an oval shape to draw.
-//     UIBezierPath *aPath = [UIBezierPath bezierPathWithOvalInRect:
-//                            CGRectMake(0, 0, 200, 100)];
-     
+     CGContextRef context = UIGraphicsGetCurrentContext();
+     CGContextSaveGState(context);
+     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+
+  // Adjust the drawing options as needed.
+     UIBezierPath *chart = [UIBezierPath bezierPath];
+     UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
+     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:79.0/255.0 alpha:1];
      // Set the render colors.
-     [[UIColor blackColor] setStroke];
-     [[UIColor redColor] setFill];
+     [darkColor setStroke];
+     [lightColor setFill];
+     NSArray * mountainColors = @[(__bridge id)darkColor.CGColor, (__bridge id)lightColor.CGColor];
+     CGFloat mountainLocations[] = { .1, .2 };
+     CGGradientRef mountainGrad = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef) mountainColors, mountainLocations);
+
+     NSValue *val = [points objectAtIndex:0];
+     CGPoint point = [val CGPointValue];
      
-//     CGContextRef aRef = UIGraphicsGetCurrentContext();
+     [chart moveToPoint:CGPointMake(0.0, height)];
      
-     // If you have content to draw after the shape,
-     // save the current state before changing the transform.
-     //CGContextSaveGState(aRef);
+     for(int i = 1; i<=count; i++){
+         val = [points objectAtIndex:i];
+         point = [val CGPointValue];
+         
+         NSValue* val2 = [points objectAtIndex:i-1] ;
+         CGPoint point2 = [val2 CGPointValue];
+         
+         float x = (point2.x+point.x)/2.0;
+         float y = (point2.y+point.y)/2.0;
+         CGPoint ctrl = CGPointMake(x,y);
+          [chart  addQuadCurveToPoint: point controlPoint:ctrl];
+//         CGContextAddQuadCurveToPoint(context, 150, 10, 300, 200);
+//         [chart  addLineToPoint: point];
+//         // [chart moveToPoint:point];
+     }
      
-     // Adjust the view's origin temporarily. The oval is
-     // now drawn relative to the new origin point.
-//     CGContextTranslateCTM(aRef, 50, 50);
-     
-     // Adjust the drawing options as needed.
-     aPath.lineWidth = 5;
-     
-     // Fill the path before stroking it so that the fill
-     // color does not obscure the stroked line.
-     [aPath fill];
-     [aPath stroke];
+//     [chart moveToPoint:CGPointMake(width,height)];
+     [chart closePath];
+     [chart fill];
+     [chart stroke];
+     CGContextRestoreGState(context);
+     CGGradientRelease(mountainGrad);
  
  }
 
 
 -(void) drawLayer{
-    
-    if(![self dataPoints]){
-        return;
-    }
-    
-    NSLog(@"draw layers");
-//    NSLog(@"%@",dataPoints);
-    //Drawing starts
-    NSArray *sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
-    //    NSMutableArray *sortedValues = [NSMutableArray array];
-    //    for (NSString *key in sortedKeys)
-    //        [sortedValues addObject: [timeSeries objectForKey: key]];
-    
-//    int c = 0 ;
-    //chonologically sorting, will be used for visualizing
-    for(id ky in sortedKeys){
-//        NSLog(@"%@, %@", ky, [dataPoints objectForKey:ky]);
-     //   c+=[[dataPoints objectForKey:ky] intValue];
-    }
-    
     NSLog(@"%@",dataPoints);
-    
-    
 
 }
 //
