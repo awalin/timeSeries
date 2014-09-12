@@ -19,6 +19,21 @@
 /*
  // Only override drawRect: if you perform custom drawing.
  // An empty implementation adversely affects performance during animation.*/
++ (Class) layerClass {
+    return [CAShapeLayer class];
+}
+-(id) init{
+    
+    self = [super init];
+    return self;
+}
+
+
+- (CAShapeLayer *)shapeLayer
+{
+    return (CAShapeLayer *)self.layer;
+}
+
 
  - (void)drawRect:(CGRect)rect {
  // Drawing code
@@ -55,26 +70,24 @@
     [points addObject:[NSValue valueWithCGPoint:CGPointMake(width,height)]];
 
      
-     CGContextRef context = UIGraphicsGetCurrentContext();
-     CGContextSaveGState(context);
-     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+//     CGContextRef context = UIGraphicsGetCurrentContext();
+//     CGContextSaveGState(context);
+//     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 
   // Adjust the drawing options as needed.
      UIBezierPath *chart = [UIBezierPath bezierPath];
      UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
-     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:79.0/255.0 alpha:1];
+     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
      // Set the render colors.
-     [darkColor setStroke];
-     [lightColor setFill];
-     NSArray * mountainColors = @[(__bridge id)darkColor.CGColor, (__bridge id)lightColor.CGColor];
-     CGFloat mountainLocations[] = { .1, .2 };
-     CGGradientRef mountainGrad = CGGradientCreateWithColors(colorSpace, (__bridge CFArrayRef) mountainColors, mountainLocations);
+//     [darkColor setStroke];
+//     [lightColor setFill];
+
 
      NSValue *val = [points objectAtIndex:0];
      CGPoint point = [val CGPointValue];
      
      [chart moveToPoint:CGPointMake(0.0, height)];
-     
+     //creating the path
      for(int i = 1; i<=count; i++){
          val = [points objectAtIndex:i];
          point = [val CGPointValue];
@@ -88,15 +101,21 @@
           [chart  addQuadCurveToPoint: point controlPoint:ctrl];
 //         CGContextAddQuadCurveToPoint(context, 150, 10, 300, 200);
 //         [chart  addLineToPoint: point];
-//         // [chart moveToPoint:point];
+
      }
      
 //     [chart moveToPoint:CGPointMake(width,height)];
      [chart closePath];
-     [chart fill];
-     [chart stroke];
-     CGContextRestoreGState(context);
-     CGGradientRelease(mountainGrad);
+     
+     //path creation done, now add this path as the path of the shape layer
+     self.shapeLayer.path = chart.CGPath;
+     self.shapeLayer.fillColor = lightColor.CGColor;
+     self.shapeLayer.strokeColor = darkColor.CGColor;
+     
+//     [chart fill];
+//     [chart stroke];
+//     CGContextRestoreGState(context);
+//     CGGradientRelease(mountainGrad);
  
  }
 
