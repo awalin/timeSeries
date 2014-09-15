@@ -35,7 +35,7 @@
     NSDate *dateTime = [formatter dateFromString:stringTime];
     
     [self setTransDate:dateTime];
-    [self setTransTimeStamp: round([self.transDate timeIntervalSince1970]/60000.00 + 0.5)]; // Convert to minutes
+    [self setTransTimeStamp: round([self.transDate timeIntervalSince1970] + 0.5)]; 
 //    NSLog(@":%@,%@,%@,%f,%@", self.month, self.year, self.weekDay, self.transTimeStamp, self.transDate);
 
     return self;

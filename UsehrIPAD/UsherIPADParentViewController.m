@@ -44,9 +44,8 @@
 
 -(void) readFile{
     
-    
     UsherIPADFileReader *aReader = [[UsherIPADFileReader alloc] init];
-    [aReader setFilename:@"Usher-selectedUsers"];
+    [aReader setFilename:@"usher-HQ"];
     UsherTimeSeries* allData = [[UsherTimeSeries alloc] init];
     [allData setTransactions:[aReader readDataFromFileAndCreateObject]];
     
@@ -54,19 +53,24 @@
     //aggreagation level= hourly
     NSNumber* max = [allData.transactions valueForKeyPath: @"@max.transTimeStamp"];
     NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
-    int aggregation = 5;
-    int buckets = ([max doubleValue]-[min doubleValue])/(aggregation*1.0) +1;
-    NSLog(@"%@, %@, %d", max, min, buckets);
+    int aggregation = 60*60*24;//aggregate per hour
+    int buckets = ([max doubleValue]-[min doubleValue])/aggregation;
+    NSLog(@"%@, %@, bins %d", max, min, buckets);
     //the finest level of aggregation is done here before creating the time series
+    for(int i = 0 ; i <= buckets; i++){
+        float t = [min floatValue]+i*aggregation;
+        id ky = [NSNumber numberWithInt:(int)(t/aggregation)];
+        [timeSeries setObject:[NSNumber numberWithInt:0] forKey: ky];
+    }
+    
     for(UsherDataStructure* aTrans in allData.transactions){
-        id ky= [NSNumber numberWithInt:(int)((aTrans.transTimeStamp - [min doubleValue])/aggregation)];
-        int obvalue = ([timeSeries objectForKey:ky]==nil)?1:([[timeSeries objectForKey:ky] integerValue]+1);
+        id ky = [NSNumber numberWithInt:((aTrans.transTimeStamp- [min floatValue])/aggregation)];
+        int obvalue = [[timeSeries objectForKey:ky] integerValue]+1;
         [timeSeries setObject:[NSNumber numberWithInt:obvalue] forKey: ky];
     }
     [allData setTimeSeries:timeSeries];
     [self.timeseriesView setData:allData.timeSeries];
     
- 
-   
 }
+
 @end

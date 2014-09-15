@@ -51,28 +51,21 @@
      //Drawing starts
      NSMutableArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
      int count = [sortedKeys count];
-     //    NSMutableArray *sortedValues = [NSMutableArray array];
-     //    for (NSString *key in sortedKeys)
-     //        [sortedValues addObject: [timeSeries objectForKey: key]];
-     
      
      float width = rect.size.width;
      float height = rect.size.height;
     NSMutableArray* points = [[NSMutableArray alloc] init];
      //chonologically sorting, will be used for visualizing
      for(id ky in sortedKeys){
-         NSLog(@"keys %@, %@", ky, [dataPoints objectForKey:ky]);
+//         NSLog(@"keys %@, %@", ky, [dataPoints objectForKey:ky]);
          float x = [ky doubleValue]*width/(count+1);
-         float y = (681.0-[[dataPoints objectForKey:ky] doubleValue])*(height/630.0);//+height;
+         NSNumber* max = [[dataPoints allValues] valueForKeyPath: @"@max.self"];
+
+         float y = ([max floatValue]-[[dataPoints objectForKey:ky] doubleValue])*(height/[max floatValue]);
          [points addObject:[NSValue valueWithCGPoint:CGPointMake(x,y)]];
          //   c+=[[dataPoints objectForKey:ky] intValue];
      }
     [points addObject:[NSValue valueWithCGPoint:CGPointMake(width,height)]];
-
-     
-//     CGContextRef context = UIGraphicsGetCurrentContext();
-//     CGContextSaveGState(context);
-//     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
 
   // Adjust the drawing options as needed.
      UIBezierPath *chart = [UIBezierPath bezierPath];
@@ -91,17 +84,7 @@
      for(int i = 1; i<=count; i++){
          val = [points objectAtIndex:i];
          point = [val CGPointValue];
-         
-         NSValue* val2 = [points objectAtIndex:i-1] ;
-         CGPoint point2 = [val2 CGPointValue];
-         
-         float x = (point2.x+point.x)/2.0;
-         float y = (point2.y+point.y)/2.0;
-         CGPoint ctrl = CGPointMake(x,y);
-          [chart  addQuadCurveToPoint: point controlPoint:ctrl];
-//         CGContextAddQuadCurveToPoint(context, 150, 10, 300, 200);
-//         [chart  addLineToPoint: point];
-
+         [chart  addLineToPoint:point];
      }
      
 //     [chart moveToPoint:CGPointMake(width,height)];
@@ -111,11 +94,7 @@
      self.shapeLayer.path = chart.CGPath;
      self.shapeLayer.fillColor = lightColor.CGColor;
      self.shapeLayer.strokeColor = darkColor.CGColor;
-     
-//     [chart fill];
-//     [chart stroke];
-//     CGContextRestoreGState(context);
-//     CGGradientRelease(mountainGrad);
+
  
  }
 

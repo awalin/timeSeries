@@ -35,6 +35,7 @@
     NSArray* lines = [stringFromFile componentsSeparatedByString:@"\r"] ;
     int totalRows = [lines count]-1;
     NSMutableArray *transactions = [[NSMutableArray alloc] init];
+    NSLog(@"Total %d", totalRows);
     
     //start  showing progress bar here, sends message to the controller//
     //parse the line and create the objects
