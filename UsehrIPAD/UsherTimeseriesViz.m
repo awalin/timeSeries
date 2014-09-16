@@ -17,6 +17,7 @@
     NSMutableArray* visibleKeys;
     float scale;
     NSMutableArray* points;
+    float eachWidth;
 }
 
 
@@ -51,26 +52,25 @@
      NSLog(@"draw layers");
      //    NSLog(@"%@",dataPoints);
      //Drawing starts
-     float width = rect.size.width;
      float height = rect.size.height;
+     eachWidth = rect.size.width/([ dataPoints count] +1);
     
-     int count = [[dataPoints allKeys] count];
 //     NSLog(@"visible keys %d", count);
-     
-     NSNumber* max = [[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"];
 
-     float eachWidth = width/(count+1);
+     NSNumber* max = [[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"];
      
 //     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
      int i = 0;
+     float x=0.0;
      for(id ky in visibleKeys){
-         float x = [ky floatValue]*eachWidth*scale;
-//         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+         x = [ky floatValue]*eachWidth*scale;
+
+         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
          float y = ([max floatValue]-[[dataPoints objectForKey:ky] floatValue])*(height/[max floatValue]);
          [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
          i++;
     }
-     [points setObject:[NSValue valueWithCGPoint:CGPointMake(width,height)] atIndexedSubscript:count];
+     [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,height)] atIndexedSubscript:i];
 
      NSValue *val = [points objectAtIndex:0];
      CGPoint point = [val CGPointValue];
@@ -79,9 +79,10 @@
      chart = [UIBezierPath bezierPath];
      [chart moveToPoint:CGPointMake(0.0, height)];
      //creating the path
-     for(int i = 1; i<= count; i++){
-         val = [points objectAtIndex:i];
+     for(int j = 0; j<=i; j++){
+         val = [points objectAtIndex:j];
          point = [val CGPointValue];
+        NSLog(@"x: %f, y %f ", point.x, point.y);
          [chart  addLineToPoint:point];
      }
      
@@ -104,11 +105,11 @@
     
     zooming = NO;
     scale =1.0;
-    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
+//    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
     
     self.shapeLayer.fillColor = lightColor.CGColor;
-    self.shapeLayer.strokeColor = darkColor.CGColor;
+//    self.shapeLayer.strokeColor = darkColor.CGColor;
     
     points = [[NSMutableArray alloc] init];
     
@@ -139,10 +140,17 @@
     NSRange theRange;
     theRange.location = 0;
    
-//    NSArray*  sortedKeys = [visibleKeys sortedArrayUsingSelector: @selector(compare:)];
-//    theRange.length = (int)(roundf(0.5+[visibleKeys count]/scale)); // considering scale = 2
-//    NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
-//    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
+    NSArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    
+    float visiblePoints = self.layer.frame.size.width/(eachWidth*scale)+1;
+    NSLog(@"visible points %f", visiblePoints);
+    if(visiblePoints <= [dataPoints count]){
+        theRange.length = (int)(roundf(0.5+visiblePoints)); // considering scale = 2
+        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
+        visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
+    } else {
+        return;
+    }
     
     [self setNeedsDisplay];
     
