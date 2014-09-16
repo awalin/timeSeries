@@ -11,10 +11,26 @@
 @interface UsherTimeSeries : NSObject
 
 
+//typedef enum {
+//    point, // no aggregation, point events
+//    hourly,
+//    dayly,
+//    weekly,
+//    monthly,
+//    quarterly
+//} AggregateLevel; // used for aggregating
+
+
 @property NSMutableDictionary *timeSeries;
 @property (strong) NSMutableArray  *transactions;
 @property double min;
 @property double max;
+@property int aggregation;//zoom level
+@property int bins;
+//@property AggregateLevel aggregateBy;
+@property NSArray* months;
+@property NSArray* weekdays;
+
 
 
 

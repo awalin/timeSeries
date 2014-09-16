@@ -13,6 +13,6 @@
 
 @interface UsherIPADParentViewController : UIViewController
 
-@property IBOutlet UsherVizContainer* timeseriesView;
+@property UsherVizContainer* timeseriesView;
 
 @end

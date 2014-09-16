@@ -8,6 +8,7 @@
 
 #import "UsherVizContainer.h"
 #import "UsherTimeSeriesViz.h"
+#import "UsherTimeSeries.h"
 
 @implementation UsherVizContainer
 
@@ -38,15 +39,21 @@
 //
 //}
 
--(void) setData:(NSMutableDictionary* )data{
+-(void) setData:(UsherTimeSeries* )data{
     
     self.graphValues = data;
     self.mainViz = [[UsherTimeseriesViz alloc] initWithFrame:CGRectMake(50, 50, 650, 400)];
     [self addSubview:self.mainViz];
-    [self.mainViz setData:data];
+    [self.mainViz setData:data.timeSeries];
      //[self setNeedsDisplay];
     
     
+}
+
+-(void) zoomTo:(float)scale {
+
+    [self.mainViz zoomTo:scale];
+
 }
 
 @end

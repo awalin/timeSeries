@@ -10,7 +10,14 @@
 
 
 
-@implementation UsherTimeseriesViz
+@implementation UsherTimeseriesViz {
+
+    UIBezierPath *chart ;
+    BOOL zooming;
+    NSMutableArray* visibleKeys;
+    float scale;
+    NSMutableArray* points;
+}
 
 
 @synthesize title ;
@@ -22,11 +29,6 @@
 + (Class) layerClass {
     return [CAShapeLayer class];
 }
--(id) init{
-    
-    self = [super init];
-    return self;
-}
 
 
 - (CAShapeLayer *)shapeLayer
@@ -37,10 +39,10 @@
 
  - (void)drawRect:(CGRect)rect {
  // Drawing code
-     if(![self dataPoints]){
-     return;
+     if(!visibleKeys){
+         return;
      }
-
+ 
 
     [[UIColor whiteColor] setFill];
     UIRectFill(rect);
@@ -49,36 +51,32 @@
      NSLog(@"draw layers");
      //    NSLog(@"%@",dataPoints);
      //Drawing starts
-     NSMutableArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
-     int count = [sortedKeys count];
-     
      float width = rect.size.width;
      float height = rect.size.height;
-    NSMutableArray* points = [[NSMutableArray alloc] init];
-     //chonologically sorting, will be used for visualizing
-     for(id ky in sortedKeys){
-//         NSLog(@"keys %@, %@", ky, [dataPoints objectForKey:ky]);
-         float x = [ky doubleValue]*width/(count+1);
-         NSNumber* max = [[dataPoints allValues] valueForKeyPath: @"@max.self"];
+    
+     int count = [visibleKeys count];
+//     NSLog(@"visible keys %d", count);
+     
+     NSNumber* max = [[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"];
 
-         float y = ([max floatValue]-[[dataPoints objectForKey:ky] doubleValue])*(height/[max floatValue]);
-         [points addObject:[NSValue valueWithCGPoint:CGPointMake(x,y)]];
-         //   c+=[[dataPoints objectForKey:ky] intValue];
-     }
-    [points addObject:[NSValue valueWithCGPoint:CGPointMake(width,height)]];
-
-  // Adjust the drawing options as needed.
-     UIBezierPath *chart = [UIBezierPath bezierPath];
-     UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
-     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
-     // Set the render colors.
-//     [darkColor setStroke];
-//     [lightColor setFill];
-
+     float eachWidth = width/(count+1);
+     
+//     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
+     int i = 0;
+     for(id ky in visibleKeys){
+         float x = [ky floatValue]*eachWidth;
+//         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+         float y = ([max floatValue]-[[dataPoints objectForKey:ky] floatValue])*(height/[max floatValue]);
+         [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
+         i++;
+    }
+     [points setObject:[NSValue valueWithCGPoint:CGPointMake(width,height)] atIndexedSubscript:count];
 
      NSValue *val = [points objectAtIndex:0];
      CGPoint point = [val CGPointValue];
      
+     
+     chart = [UIBezierPath bezierPath];
      [chart moveToPoint:CGPointMake(0.0, height)];
      //creating the path
      for(int i = 1; i<=count; i++){
@@ -87,15 +85,12 @@
          [chart  addLineToPoint:point];
      }
      
-//     [chart moveToPoint:CGPointMake(width,height)];
      [chart closePath];
      
      //path creation done, now add this path as the path of the shape layer
      self.shapeLayer.path = chart.CGPath;
-     self.shapeLayer.fillColor = lightColor.CGColor;
-     self.shapeLayer.strokeColor = darkColor.CGColor;
-
- 
+     
+     
  }
 
 
@@ -103,16 +98,55 @@
     NSLog(@"%@",dataPoints);
 
 }
-//
--(void) setData:(NSMutableDictionary*) data{
-    
-//    self = [super init];
 
-    dataPoints = [[NSMutableDictionary alloc] initWithDictionary:data];
+//first time creation of the data  for the chart
+-(void) setData:(NSMutableDictionary*) data {
+    
+    zooming = NO;
+    scale =1.0;
+    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
+    UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
+    
+    self.shapeLayer.fillColor = lightColor.CGColor;
+    self.shapeLayer.strokeColor = darkColor.CGColor;
+    
+    points = [[NSMutableArray alloc] init];
+    
+    dataPoints = [[NSMutableDictionary alloc] init];
+
     title = @"Timeseries data"; // can be used as the title
     
+    NSArray*  sortedKeys = [[data allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    //chonologically sorting, will be used for visualizing
+    for(id ky in sortedKeys){
+        int value=[(NSMutableArray*)[data objectForKey:ky] count];
+        [dataPoints setObject:[NSNumber numberWithInt:value] forKey: ky];
+
+    }
+    visibleKeys =[[NSMutableArray alloc] init];
+    visibleKeys = (NSMutableArray*)sortedKeys ;
+   
+
+
     [self setNeedsDisplay];
 }
 
+
+-(void) zoomTo:(float) scalez {
+
+    zooming = YES;
+    scale = scalez;
+    
+    NSArray*  sortedKeys = [visibleKeys sortedArrayUsingSelector: @selector(compare:)];
+    NSRange theRange;
+    theRange.location = 0;
+    theRange.length = 30; // considering scale = 2
+    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
+    
+    [self setNeedsDisplay];
+    
+    
+
+}
 
 @end

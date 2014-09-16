@@ -12,11 +12,41 @@
 @interface UsherTimeseriesViz : UIView
 
 
+typedef enum {
+    none, // no split, sum of all
+    hours,
+    days,
+    weekdays,
+    months,
+    quarters,
+    departments,
+    designations,
+    floors
+} SplitCategories; // used for splitting / drill down categories
+
+typedef enum {
+    point, // no aggregation, point events
+    hourly,
+    dayly,
+    weekly,
+    monthly,
+    quarterly
+} ZoomLevels; // used for aggregating
+
+
 @property NSMutableDictionary* dataPoints;
 @property NSString* title;
+@property int aggregation;//zoom level
+@property int bins;
+@property NSString* categories; //split categories
+
+@property SplitCategories splitBy;
+@property ZoomLevels zoomInto;
+
+
 //key value, key= X position, value= object with label and Y position
 
 -(void) setData:(NSMutableDictionary*)data;
-//-(id) initWithData:(NSMutableDictionary*) data;
+-(void) zoomTo:(float) scale;
 
 @end

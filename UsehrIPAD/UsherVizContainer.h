@@ -8,6 +8,7 @@
 
 #import <UIKit/UIKit.h>
 @class UsherTimeseriesViz;
+@class UsherTimeSeries;
 //super class for all sorts of visualization
 @interface UsherVizContainer : UIView
 
@@ -18,15 +19,15 @@
 //@property IBOutlet UIView* legend;
 
 
-@property NSMutableDictionary* graphValues;
+//@property NSMutableDictionary* graphValues;
+@property UsherTimeSeries* graphValues;
 
 @property NSMutableDictionary* legends;
 @property NSMutableDictionary* yLabels;
 @property NSMutableDictionary* xLabels;
 
 @property NSString* vizType;
-@property UIGestureRecognizer* gestureRecognizer;
 
--(void) setData:(NSMutableDictionary* )data;
-
+-(void) setData:(UsherTimeSeries* )data;
+-(void) zoomTo:(float)scale;
 @end
