@@ -54,7 +54,7 @@
      float width = rect.size.width;
      float height = rect.size.height;
     
-     int count = [visibleKeys count];
+     int count = [[dataPoints allKeys] count];
 //     NSLog(@"visible keys %d", count);
      
      NSNumber* max = [[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"];
@@ -64,7 +64,7 @@
 //     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
      int i = 0;
      for(id ky in visibleKeys){
-         float x = [ky floatValue]*eachWidth;
+         float x = [ky floatValue]*eachWidth*scale;
 //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
          float y = ([max floatValue]-[[dataPoints objectForKey:ky] floatValue])*(height/[max floatValue]);
          [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
@@ -79,7 +79,7 @@
      chart = [UIBezierPath bezierPath];
      [chart moveToPoint:CGPointMake(0.0, height)];
      //creating the path
-     for(int i = 1; i<=count; i++){
+     for(int i = 1; i<= count; i++){
          val = [points objectAtIndex:i];
          point = [val CGPointValue];
          [chart  addLineToPoint:point];
@@ -126,7 +126,7 @@
     visibleKeys =[[NSMutableArray alloc] init];
     visibleKeys = (NSMutableArray*)sortedKeys ;
    
-
+    self.shapeLayer.masksToBounds = YES;
 
     [self setNeedsDisplay];
 }
@@ -136,12 +136,13 @@
 
     zooming = YES;
     scale = scalez;
-    
-    NSArray*  sortedKeys = [visibleKeys sortedArrayUsingSelector: @selector(compare:)];
     NSRange theRange;
     theRange.location = 0;
-    theRange.length = 30; // considering scale = 2
-    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
+   
+//    NSArray*  sortedKeys = [visibleKeys sortedArrayUsingSelector: @selector(compare:)];
+//    theRange.length = (int)(roundf(0.5+[visibleKeys count]/scale)); // considering scale = 2
+//    NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
+//    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
     
     [self setNeedsDisplay];
     

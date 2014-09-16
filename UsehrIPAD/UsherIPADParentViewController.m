@@ -16,6 +16,7 @@
 @implementation UsherIPADParentViewController {
 
     float zoomScaleCurrent;
+    float scale;
 }
 
 -(void) viewDidLoad
@@ -40,7 +41,7 @@
     self.timeseriesView.layer.cornerRadius = 10.0;
     self.timeseriesView.layer.frame = CGRectInset(self.view.layer.frame, 0, 0 );
     zoomScaleCurrent = 1.0;
-    
+    scale = 1.0;
     [self readFile];
     
     UIPanGestureRecognizer *panGestureRecognizer = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(screenPan:)];
@@ -65,16 +66,16 @@
     
     
     NSLog(@" zoom ");
-    GLfloat scale;
+
 	
     if (sender.state==UIGestureRecognizerStateBegan) {
+        scale = zoomScaleCurrent;
+        NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
 		
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
-		scale =  sender.scale;
-		if (scale>4.0) scale = 4.0;
-		else if (scale<0.25) scale = 0.25;
-        
+		scale = zoomScaleCurrent*sender.scale;
+        NSLog(@"scale %f, sender scale %f", scale, sender.scale);
         [self.timeseriesView zoomTo:scale];
 
         
