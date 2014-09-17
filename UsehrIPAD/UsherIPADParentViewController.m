@@ -64,16 +64,16 @@
 
 -(void) screenZoom: (UIPinchGestureRecognizer *) sender{
     
-    
-    NSLog(@" zoom ");
-
-	
     if (sender.state==UIGestureRecognizerStateBegan) {
         scale = zoomScaleCurrent;
         NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
 		
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
+        if(scale<=1.00 && sender.scale<1.00){
+            return;
+        }
+        NSLog(@" zoom ");
 		scale = zoomScaleCurrent*sender.scale;
         NSLog(@"scale %f, sender scale %f", scale, sender.scale);
         [self.timeseriesView zoomTo:scale];

@@ -64,8 +64,7 @@
      float x=0.0;
      for(id ky in visibleKeys){
          x = [ky floatValue]*eachWidth*scale;
-
-         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+//         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
          float y = ([max floatValue]-[[dataPoints objectForKey:ky] floatValue])*(height/[max floatValue]);
          [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
          i++;
@@ -82,7 +81,7 @@
      for(int j = 0; j<=i; j++){
          val = [points objectAtIndex:j];
          point = [val CGPointValue];
-        NSLog(@"x: %f, y %f ", point.x, point.y);
+//        NSLog(@"x: %f, y %f ", point.x, point.y);
          [chart  addLineToPoint:point];
      }
      
@@ -143,12 +142,15 @@
     NSArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
     
     float visiblePoints = self.layer.frame.size.width/(eachWidth*scale)+1;
-    NSLog(@"visible points %f", visiblePoints);
+//    NSLog(@"visible points %f", visiblePoints);
+    
     if(visiblePoints <= [dataPoints count]){
         theRange.length = (int)(roundf(0.5+visiblePoints)); // considering scale = 2
-        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
+//        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
         visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
     } else {
+        NSLog(@"doing nothing %f, scale %f ", visiblePoints, scalez );
+        scalez = 1.0;
         return;
     }
     
