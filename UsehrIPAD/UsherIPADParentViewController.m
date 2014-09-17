@@ -17,6 +17,7 @@
 
     float zoomScaleCurrent;
     float scale;
+    CGPoint center ;//zooming center
 }
 
 -(void) viewDidLoad
@@ -56,7 +57,7 @@
 -(void) screenPan: (UIPanGestureRecognizer *)gesture {
     
     
-    NSLog(@" pannig ");
+//    NSLog(@" pannig ");
     //calsulate touch begin and end, and span, how to zoom
     //go to the viz container, then go to its chart view, redraw
 }
@@ -64,13 +65,19 @@
 
 -(void) screenZoom: (UIPinchGestureRecognizer *) sender{
     
-    if (sender.state==UIGestureRecognizerStateBegan) {
+      if (sender.state==UIGestureRecognizerStateBegan) {
         scale = zoomScaleCurrent;
         NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
+        
+        center =  [sender locationInView:(UIView*)self.timeseriesView.mainViz];
+        NSLog(@"%f, %f", center.x, center.y);
+        //make that the center of the zooming,
+        
 		
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
         if(scale<=1.00 && sender.scale<1.00){
+//            zoomScaleCurrent = scale;
             return;
         }
         NSLog(@" zoom ");
@@ -81,6 +88,13 @@
         
 	}else if(sender.state==UIGestureRecognizerStateEnded){
         zoomScaleCurrent = scale;
+//        if(scale<=1.00 && sender.scale<1.00){
+//            return;
+//        }
+        
+        // dragging finished, now adjust the y-axis values
+        [self.timeseriesView adjustYvalues];
+        
     }
     
 	
@@ -100,31 +114,41 @@
     NSNumber* max = [allData.transactions valueForKeyPath: @"@max.transTimeStamp"];
     NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
   
-    int aggregation = 60*60*24;//aggregate per hour
+    float aggregation = 60*60*24;//aggregate per hour
     allData.aggregation = aggregation;
     
     int buckets = ([max doubleValue]-[min doubleValue])/aggregation;
     NSLog(@"%@, %@, bins %d", max, min, buckets);
     
     //putting the transactions into bin and sending the bins to the viz container
-    for(int i = 0 ; i <= buckets; i++){
+    for(int i = 0 ; i < buckets; i++){
         float t = [min floatValue]+i*aggregation;
         id ky = [NSNumber numberWithInt:(int)((t-[min floatValue])/aggregation)];
         NSMutableArray* values = [[NSMutableArray alloc] init];
         [timeSeries setObject:values forKey: ky];
-//        NSLog(@"init key %@, %@", ky, [timeSeries objectForKey:ky]);
     }
-    
+    int i = 0 ;
     for(UsherDataStructure* aTrans in allData.transactions){
         id ky = [NSNumber numberWithInt:((aTrans.transTimeStamp- [min floatValue])/aggregation)];
-        
+//         NSLog(@"init key %@, %@ %d, %@", ky, [timeSeries objectForKey:ky],i ,aTrans.transId);
 //        int obvalue = [[timeSeries objectForKey:ky] integerValue]+1;
-        NSMutableArray* mar = [timeSeries objectForKey:ky] ;
-        [mar addObject:aTrans.transId]; //adding another id to the array
-        [timeSeries setObject:mar forKey: ky];
-      
+        if([timeSeries objectForKey:ky]!=NULL){
+            NSMutableArray* mar = [timeSeries objectForKey:ky] ;
+            [mar addObject:aTrans.transId]; //adding another id to the array
+            [timeSeries setObject:mar forKey: ky];
+        
+        }else {
+            NSMutableArray* mar = [[NSMutableArray alloc] init];
+            [timeSeries setObject:mar forKey: ky];
+            [mar addObject:aTrans.transId]; //adding another id to the array
+            [timeSeries setObject:mar forKey: ky];
+        
+        }
+       
+        i++;
 
     }
+    NSLog(@"Object creation done");
     
     [allData setTimeSeries:timeSeries];
     [self.timeseriesView setData:allData];

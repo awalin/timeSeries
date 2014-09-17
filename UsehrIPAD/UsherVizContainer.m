@@ -56,4 +56,9 @@
 
 }
 
+-(void) adjustYvalues {
+    [self.mainViz adjustYscale];
+
+}
+
 @end

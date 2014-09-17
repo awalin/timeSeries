@@ -11,13 +11,15 @@
 
 
 @implementation UsherTimeseriesViz {
-
+    
     UIBezierPath *chart ;
     BOOL zooming;
     NSMutableArray* visibleKeys;
     float scale;
     NSMutableArray* points;
     float eachWidth;
+    float max;
+    float height;
 }
 
 
@@ -38,65 +40,58 @@
 }
 
 
- - (void)drawRect:(CGRect)rect {
- // Drawing code
-     if(!visibleKeys){
-         return;
-     }
- 
-
+- (void)drawRect:(CGRect)rect {
+    // Drawing code
+    if(!visibleKeys){
+        return;
+    }
+    
+    
     [[UIColor whiteColor] setFill];
     UIRectFill(rect);
     [super drawRect:rect];
-     //SOPAN:
-     NSLog(@"draw layers");
-     //    NSLog(@"%@",dataPoints);
-     //Drawing starts
-     float height = rect.size.height;
-     eachWidth = rect.size.width/([ dataPoints count] +1);
+    //SOPAN:
+    NSLog(@"draw layers");
+    //    NSLog(@"%@",dataPoints);
+    //Drawing starts
+    height = rect.size.height;
+    eachWidth = rect.size.width/([ dataPoints count] +1);
     
-//     NSLog(@"visible keys %d", count);
-
-     NSNumber* max = [[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"];
-     
-//     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
-     int i = 0;
-     float x=0.0;
-     for(id ky in visibleKeys){
-         x = [ky floatValue]*eachWidth*scale;
-//         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
-         float y = ([max floatValue]-[[dataPoints objectForKey:ky] floatValue])*(height/[max floatValue]);
-         [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
-         i++;
+    //     NSLog(@"visible keys %d", count);
+    
+    //     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
+    int i = 0;
+    float x=0.0;
+    for(id ky in visibleKeys){
+        x = [ky floatValue]*eachWidth*scale;
+        //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+        [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
+        i++;
     }
-     [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,height)] atIndexedSubscript:i];
-
-     NSValue *val = [points objectAtIndex:0];
-     CGPoint point = [val CGPointValue];
-     
-     
-     chart = [UIBezierPath bezierPath];
-     [chart moveToPoint:CGPointMake(0.0, height)];
-     //creating the path
-     for(int j = 0; j<=i; j++){
-         val = [points objectAtIndex:j];
-         point = [val CGPointValue];
-//        NSLog(@"x: %f, y %f ", point.x, point.y);
-         [chart  addLineToPoint:point];
-     }
-     
-     [chart closePath];
-     
-     //path creation done, now add this path as the path of the shape layer
-     self.shapeLayer.path = chart.CGPath;
-     
-     
- }
+    [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,height)] atIndexedSubscript:i];
+    
+    NSValue *val = [points objectAtIndex:0];
+    CGPoint point = [val CGPointValue];
+    
+    chart = [UIBezierPath bezierPath];
+    [chart moveToPoint:CGPointMake(0.0, height)];
+    //creating the path
+    for(int j = 0; j<=i; j++){
+        val = [points objectAtIndex:j];
+        point = [val CGPointValue];
+        //        NSLog(@"x: %f, y %f ", point.x, point.y);
+        [chart  addLineToPoint:point];
+    }
+    [chart closePath];
+    self.shapeLayer.path = chart.CGPath;
+    
+}
 
 
 -(void) drawLayer{
     NSLog(@"%@",dataPoints);
-
+    
 }
 
 //first time creation of the data  for the chart
@@ -104,16 +99,16 @@
     
     zooming = NO;
     scale =1.0;
-//    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
+    //    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
     
     self.shapeLayer.fillColor = lightColor.CGColor;
-//    self.shapeLayer.strokeColor = darkColor.CGColor;
+    //    self.shapeLayer.strokeColor = darkColor.CGColor;
     
     points = [[NSMutableArray alloc] init];
     
     dataPoints = [[NSMutableDictionary alloc] init];
-
+    
     title = @"Timeseries data"; // can be used as the title
     
     NSArray*  sortedKeys = [[data allKeys] sortedArrayUsingSelector: @selector(compare:)];
@@ -121,32 +116,35 @@
     for(id ky in sortedKeys){
         int value=[(NSMutableArray*)[data objectForKey:ky] count];
         [dataPoints setObject:[NSNumber numberWithInt:value] forKey: ky];
-
+        
     }
     visibleKeys =[[NSMutableArray alloc] init];
     visibleKeys = (NSMutableArray*)sortedKeys ;
-   
+    
     self.shapeLayer.masksToBounds = YES;
-
+    
+    max = [[[dataPoints allValues] valueForKeyPath: @"@max.self"] floatValue];
+    
+    
     [self setNeedsDisplay];
 }
 
 
 -(void) zoomTo:(float) scalez {
-
+    
     zooming = YES;
     scale = scalez;
     NSRange theRange;
     theRange.location = 0;
-   
+    
     NSArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
     
     float visiblePoints = self.layer.frame.size.width/(eachWidth*scale)+1;
-//    NSLog(@"visible points %f", visiblePoints);
+    //    NSLog(@"visible points %f", visiblePoints);
     
     if(visiblePoints <= [dataPoints count]){
         theRange.length = (int)(roundf(0.5+visiblePoints)); // considering scale = 2
-//        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
+        //        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
         visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
     } else {
         NSLog(@"doing nothing %f, scale %f ", visiblePoints, scalez );
@@ -157,6 +155,64 @@
     [self setNeedsDisplay];
     
     
+    
+}
+
+-(void) adjustYscale {
+
+    
+    // now change the y-axis with animation
+    
+    float cmax = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue];
+    if(cmax!=max){
+        
+        
+        int i = 0;
+        float x=0.0;
+        for(id ky in visibleKeys){
+            x = [ky floatValue]*eachWidth*scale;
+            //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+            float y = (cmax-[[dataPoints objectForKey:ky] floatValue])*(height/cmax);
+            [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
+            i++;
+        }
+        [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,height)] atIndexedSubscript:i];//may need to replace with another more appropriate oint to close the path
+        
+        max= cmax;
+        
+        NSValue *val = [points objectAtIndex:0];
+        CGPoint point = [val CGPointValue];
+        
+        chart = [UIBezierPath bezierPath];
+        [chart moveToPoint:CGPointMake(0.0, height)];
+        //creating the path
+        for(int j = 0; j<=i; j++){
+            val = [points objectAtIndex:j];
+            point = [val CGPointValue];
+            //        NSLog(@"x: %f, y %f ", point.x, point.y);
+            [chart  addLineToPoint:point];
+        }
+        [chart closePath];
+        
+        //animate path to new value
+        CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"path"];
+        [animatePath setFromValue: (id)self.shapeLayer.path];
+        [animatePath setToValue: (id)chart.CGPath];
+        [animatePath setDuration:1.0];
+        
+
+        [self.shapeLayer addAnimation:animatePath forKey:nil];
+        
+        self.shapeLayer.path = chart.CGPath;
+        
+    } else {
+        return;
+    }
+    //path creation done, now add this path as the path of the shape layer
+    
+    
+
+
 
 }
 

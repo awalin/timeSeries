@@ -30,4 +30,5 @@
 
 -(void) setData:(UsherTimeSeries* )data;
 -(void) zoomTo:(float)scale;
+-(void) adjustYvalues ;
 @end
