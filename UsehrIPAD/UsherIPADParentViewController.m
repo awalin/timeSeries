@@ -11,6 +11,7 @@
 #import "UsherIPADFileReader.h"
 #import "UsherDataStructure.h"
 #import "UsherVizContainer.h"
+#import "UsherTimeseriesViz.h"
 #import <QuartzCore/QuartzCore.h>
 
 @implementation UsherIPADParentViewController {
@@ -54,10 +55,25 @@
 
 }
 
--(void) screenPan: (UIPanGestureRecognizer *)gesture {
+-(void) screenPan: (UIPanGestureRecognizer *)sender {
     
     
-//    NSLog(@" pannig ");
+    NSLog(@" pannig ");
+    
+    if (sender.state==UIGestureRecognizerStateBegan) {
+        
+		
+	}
+	else if (sender.state==UIGestureRecognizerStateChanged) {
+   
+       CGPoint translate =[sender translationInView:(UIView*)self.timeseriesView];
+        [self.timeseriesView.mainViz panView:translate];
+        
+	}else if(sender.state==UIGestureRecognizerStateEnded){
+        
+        
+    }
+
     //calsulate touch begin and end, and span, how to zoom
     //go to the viz container, then go to its chart view, redraw
 }
@@ -82,7 +98,7 @@
         }
         NSLog(@" zoom ");
 		scale = zoomScaleCurrent*sender.scale;
-        NSLog(@"scale %f, sender scale %f", scale, sender.scale);
+//        NSLog(@"scale %f, sender scale %f", scale, sender.scale);
         [self.timeseriesView zoomTo:scale];
 
         
@@ -94,6 +110,9 @@
         
         // dragging finished, now adjust the y-axis values
         [self.timeseriesView adjustYvalues];
+        
+        // now update aggregation if needed
+        
         
     }
     
@@ -115,9 +134,28 @@
     NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
   
     float aggregation = 60*60*24;//aggregate per hour
+
+    
+    float width = 600.0;//self.timeseriesView.mainViz.layer.frame.size.width;
+    float diff = [max floatValue]-[min floatValue];
+    float agg = (diff)/width;
+    
+    NSLog(@"%f, %f", diff, agg);
+    
+    if( agg >60*60 && agg<=60*60*24){
+        aggregation = 60*60*24;//day
+        NSLog(@" Day ,%f", diff/agg);
+    
+    }
+    else if( agg <=60*60 && agg > 60){
+        aggregation = 60*60;//hour
+        NSLog(@" Hour ");
+
+    }
+    
     allData.aggregation = aggregation;
     
-    int buckets = ([max doubleValue]-[min doubleValue])/aggregation;
+    int buckets = (diff)/allData.aggregation;
     NSLog(@"%@, %@, bins %d", max, min, buckets);
     
     //putting the transactions into bin and sending the bins to the viz container

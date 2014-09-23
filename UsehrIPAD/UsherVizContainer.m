@@ -12,32 +12,7 @@
 
 @implementation UsherVizContainer
 
-/*
-// Only override drawRect: if you perform custom drawing.
-// An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
 
-//-(id) init{
-//
-//had problem with nib, creates two instance of the uiview, so the one with our assigned valu does not get the property values
-//http://stackoverflow.com/questions/2712502/uiview-drawrect-class-variables-out-of-scope
-
-//   id mainview = [[[NSBundle mainBundle] loadNibNamed:@"TimeseriesView"
-//                                   owner:self
-//                                 options:nil]
-//                        objectAtIndex:0];
-//
-//    //create the frame for the container
-//    [self setFrame:CGRectMake(0,
-//                              0,
-//                              self.frame.size.width,
-//                              self.frame.size.height)];
-//    return mainview;
-//
-//}
 
 -(void) setData:(UsherTimeSeries* )data{
     
@@ -58,7 +33,9 @@
 
 -(void) adjustYvalues {
     [self.mainViz adjustYscale];
-
+    
+    // now reaggregate if necessary//
+    
 }
 
 @end
