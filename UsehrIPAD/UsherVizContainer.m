@@ -25,9 +25,9 @@
     
 }
 
--(void) zoomTo:(float)scale {
+-(void) zoomTo:(float)scale withCenter:(CGPoint) center {
 
-    [self.mainViz zoomTo:scale];
+    [self.mainViz zoomTo:scale withCenter:center];
 
 }
 

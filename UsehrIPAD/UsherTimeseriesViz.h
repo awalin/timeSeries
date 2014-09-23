@@ -47,8 +47,9 @@ typedef enum {
 //key value, key= X position, value= object with label and Y position
 
 -(void) setData:(NSMutableDictionary*)data;
--(void) zoomTo:(float) scale;
+-(void) zoomTo:(float) scale withCenter:(CGPoint) center;
 -(void) adjustYscale;
 -(void) panView:(CGPoint) translate;
+-(void) adjustAnchor:(CGPoint) anchor;
 
 @end

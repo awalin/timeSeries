@@ -21,6 +21,7 @@
     float max;
     float height;
     CAShapeLayer* shapeLayer;
+    NSArray* sortedKeys;
 }
 
 
@@ -53,20 +54,20 @@
         return;
     }
     
-
+    
     //SOPAN:
     NSLog(@"draw layers");
     //    NSLog(@"%@",dataPoints);
     //Drawing starts
     height = rect.size.height;
-    eachWidth = rect.size.width/([ dataPoints count] +1);
+    eachWidth = rect.size.width/([dataPoints count] +1);
     
     //     NSLog(@"visible keys %d", count);
     
     //     NSLog(@"max = %d, each width %f ", [max intValue], eachWidth);
     int i = 0;
     float x=0.0;
-    for(id ky in visibleKeys){
+    for(id ky in [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)]){
         x = [ky floatValue]*eachWidth*scale;
         //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
         float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
@@ -79,7 +80,7 @@
     CGPoint point = [val CGPointValue];
     
     chart = [UIBezierPath bezierPath];
-//    [chart setLineJoinStyle:kCALineJoinRound];
+    //    [chart setLineJoinStyle:kCALineJoinRound];
     [chart moveToPoint:CGPointMake(0.0, height)];
     //creating the path
     for(int j = 0; j<=i; j++){
@@ -102,32 +103,20 @@
     zooming = NO;
     scale =1.0;
     shapeLayer = [CAShapeLayer layer];
-    
-//    [shapeLayer setDelegate:self];
     [shapeLayer setBounds:CGRectMake(0.0, 0.0, [self frame].size.width, [self frame].size.height )];
     [shapeLayer setPosition: CGPointMake(self.frame.size.width/2,
-                                                self.frame.size.height/2)];
+                                         self.frame.size.height/2)];
     
-  //    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
+    //    UIColor * darkColor = [UIColor colorWithRed:1.0/255.0 green:1.0/255.0 blue:67.0/255.0 alpha:1];
     UIColor * lightColor = [UIColor colorWithRed:3.0/255.0 green:3.0/255.0 blue:90.0/255.0 alpha:0.6];
-//    CGPoint center = [self.shapeLayer position];
-//    NSLog(@"%f %f ", self.shapeLayer.position.x, self.shapeLayer.position.y );
-
     shapeLayer.fillColor = lightColor.CGColor;
     //    self.shapeLayer.strokeColor = darkColor.CGColor;
     
-    CALayer* maskLayer = [[CALayer alloc] init];
-    [maskLayer setPosition:self.frame.origin];
-    [maskLayer setBounds:self.bounds];
-//    self.shapeLayer.mask = maskLayer;
-    
     points = [[NSMutableArray alloc] init];
-    
     dataPoints = [[NSMutableDictionary alloc] init];
-    
     title = @"Timeseries data"; // can be used as the title
     
-    NSArray*  sortedKeys = [[data allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    sortedKeys = [[data allKeys] sortedArrayUsingSelector: @selector(compare:)];
     //chonologically sorting, will be used for visualizing
     for(id ky in sortedKeys){
         int value=[(NSMutableArray*)[data objectForKey:ky] count];
@@ -145,30 +134,66 @@
     [self setNeedsDisplay];
 }
 
+-(void) adjustAnchor:(CGPoint) anchor {
+    
+    NSLog(@"adjusting anchor");
+    
+    shapeLayer.anchorPoint = CGPointMake(anchor.x / shapeLayer.bounds.size.width, shapeLayer.anchorPoint.y);
+    
+}
 
--(void) zoomTo:(float) scalez {
+-(void) zoomTo:(float) scalez withCenter:(CGPoint) center{
+    //TODO:zoom should be centered around the touch point
     
     zooming = YES;
     scale = scalez;
     NSRange theRange;
-    theRange.location = 0;
+       NSLog(@"scale %f", scale);
     
-    NSArray*  sortedKeys = [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    //Center the zooming around the pinch point
     
-    float visiblePoints = self.layer.frame.size.width/(eachWidth*scale)+1;
-    //    NSLog(@"visible points %f", visiblePoints);
-    
-    if(visiblePoints <= [dataPoints count]){
-        theRange.length = (int)(roundf(0.5+visiblePoints)); // considering scale = 2
+    int visiblePoints = (int)(self.layer.frame.size.width/(eachWidth*scale));
+    NSLog(@"visible points %d", visiblePoints);
+    if(visiblePoints<3){
+        return;
+    }
+    else if(visiblePoints <= [dataPoints count]){
+        theRange.length = (int)(roundf(visiblePoints-0.5))-1; // considering scale = 2
         //        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
+        int midvalue = (int)(roundf(center.x/(eachWidth*scale)-0.5));
+       
+        theRange.location = midvalue-theRange.length/2;
+        NSLog(@"%d, %d", theRange.length, theRange.location);
+        
+
         visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
-    } else {
-        NSLog(@"doing nothing %f, scale %f ", visiblePoints, scalez );
+        
+        NSArray* exisitngpoints= [dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] ;
+        NSLog(@"%@", exisitngpoints);
+        if([exisitngpoints count]<3){
+            NSLog(@"Too few markers");
+            return;
+        }
+        
+        CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
+        [animatePath setFromValue: [NSValue valueWithCATransform3D:CATransform3DScale(shapeLayer.transform, 1.0, 1.0, 1.0) ]];
+        [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0) ]];
+        [animatePath setDuration:1.0];
+        
+        [shapeLayer addAnimation:animatePath forKey:nil];
+        shapeLayer.transform = CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0);
+        NSLog(@"zooming");
+        
+
+        
+    //    [self setNeedsDisplay];
+        } else {
+        NSLog(@"doing nothing %d, scale %f ", visiblePoints, scalez );
         scalez = 1.0;
         return;
     }
+//
     
-    [self setNeedsDisplay];
     
     
     
@@ -178,19 +203,26 @@
 -(void) panView:(CGPoint) translate{
     NSLog(@"translating view ");
     
-    CGPoint center = [shapeLayer position];
-    NSLog(@"%f %f, trans %f , %f ", shapeLayer.position.x, shapeLayer.position.y, translate.x, translate.y );
-    [shapeLayer setPosition:CGPointMake(center.x+translate.x*0.5, center.y)];
+    //    CGPoint center = [shapeLayer position];
+    //    NSLog(@"%f %f, trans %f , %f ", shapeLayer.position.x, shapeLayer.position.y, translate.x, translate.y );
+    //    [shapeLayer setPosition:CGPointMake(center.x+translate.x*0.5, center.y)];
+    
+    CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform.translate"];
+    [animatePath setFromValue: [NSValue valueWithCATransform3D:CATransform3DTranslate(shapeLayer.transform, 0.0, 0.0, 0.0) ]];
+    [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DTranslate(shapeLayer.transform, translate.x*0.2, 0.0, 0.0) ]];
+    [animatePath setDuration:0.2];
+    
+    [shapeLayer addAnimation:animatePath forKey:nil];
+    shapeLayer.transform = CATransform3DTranslate(shapeLayer.transform, translate.x*0.2, 0.0, 0.0);
+    
+    
 }
 
 
 
--(void) reaggregate {
-
-}
-
+//TODO:need to call it after panning, too
 -(void) adjustYscale {
-
+    return;
     
     // now change the y-axis with animation
     
@@ -200,7 +232,7 @@
         
         int i = 0;
         float x=0.0;
-        for(id ky in visibleKeys){
+        for(id ky in sortedKeys){ // as opposed to visible keys
             x = [ky floatValue]*eachWidth*scale;
             //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
             float y = (cmax-[[dataPoints objectForKey:ky] floatValue])*(height/cmax);
@@ -230,7 +262,7 @@
         [animatePath setFromValue: (id)shapeLayer.path];
         [animatePath setToValue: (id)chart.CGPath];
         [animatePath setDuration:1.0];
-
+        
         [shapeLayer addAnimation:animatePath forKey:nil];
         shapeLayer.path = chart.CGPath;
         
@@ -239,7 +271,7 @@
     }
     //path creation done, now add this path as the path of the shape layer
     
-
+    
 }
 
 @end
