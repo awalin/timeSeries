@@ -18,7 +18,6 @@
 
     float zoomScaleCurrent;
     float scale;
-    CGPoint center ;//zooming center
 }
 
 -(void) viewDidLoad
@@ -58,11 +57,11 @@
 -(void) screenPan: (UIPanGestureRecognizer *)sender {
     
     
-    NSLog(@" pannig ");
+    
     
     if (sender.state==UIGestureRecognizerStateBegan) {
-        
-		
+        NSLog(@" pannig ");
+		 [self.timeseriesView.mainViz adjustAnchor: sender];
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
    
@@ -78,34 +77,24 @@
     //go to the viz container, then go to its chart view, redraw
 }
 
-- (void)adjustAnchorPointForGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer {
-    
-    if (gestureRecognizer.state == UIGestureRecognizerStateBegan) {
-        UIView *piece = gestureRecognizer.view;
-        CGPoint locationInView = [gestureRecognizer locationInView:piece];
-        CGPoint locationInSuperview = [gestureRecognizer locationInView:piece.superview];
-        
-        piece.layer.anchorPoint = CGPointMake(locationInView.x / piece.bounds.size.width, locationInView.y / piece.bounds.size.height);
-        piece.center = locationInSuperview;
-    }
-}
+
 
 -(void) screenZoom: (UIPinchGestureRecognizer *) sender{
     
       if (sender.state==UIGestureRecognizerStateBegan) {
         scale = zoomScaleCurrent;
         NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
-        center = [sender locationInView:(UIView*)self.timeseriesView.mainViz];
-        [self.timeseriesView.mainViz adjustAnchor: center];
+        [self.timeseriesView.mainViz adjustAnchor: sender];
           
     } else if (sender.state==UIGestureRecognizerStateChanged) {
-        if(scale<=1.00 && sender.scale<1.00){
-//            zoomScaleCurrent = scale;
-            return;
-        }
+//        if(scale<=1.00 && sender.scale<1.00){
+////            zoomScaleCurrent = scale;
+//            NSLog(@"not caling zoom ");
+//            return;
+//        }
 //        NSLog(@" zoom ");
 		scale = zoomScaleCurrent*sender.scale;
-        [self.timeseriesView zoomTo:scale withCenter:center];
+        [self.timeseriesView zoomTo:scale];
 
         
 	}else if(sender.state==UIGestureRecognizerStateEnded){

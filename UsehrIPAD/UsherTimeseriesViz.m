@@ -15,13 +15,18 @@
     UIBezierPath *chart ;
     BOOL zooming;
     NSMutableArray* visibleKeys;
-    float scale;
+    float scale; // x
+    float translation;
+    float yScale;
     NSMutableArray* points;
     float eachWidth;
     float max;
     float height;
     CAShapeLayer* shapeLayer;
     NSArray* sortedKeys;
+    int maxKey; //visible min key
+    int minKey; // visible max key
+    CGPoint center;
 }
 
 
@@ -61,9 +66,9 @@
 
     int i = 0;
     float x=0.0;
-    for(id ky in [[dataPoints allKeys] sortedArrayUsingSelector: @selector(compare:)]){
-        x = [ky floatValue]*eachWidth*scale;
-        //         NSLog(@"keys: %f, position %f ", [ky floatValue], x);
+    for(id ky in sortedKeys){
+        x = [ky floatValue]*eachWidth*scale + translation; // + translation
+//        NSLog(@"keys: %d, position %f ", [ky intValue], x);
         float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
         [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
         i++;
@@ -94,6 +99,7 @@
     
     zooming = NO;
     scale =1.0;
+    translation = 0.0;
     shapeLayer = [CAShapeLayer layer];
     [shapeLayer setBounds:CGRectMake(0.0, 0.0, [self frame].size.width, [self frame].size.height )];
     [shapeLayer setPosition: CGPointMake(self.frame.size.width/2,
@@ -109,6 +115,11 @@
     title = @"Timeseries data"; // can be used as the title
     
     sortedKeys = [[data allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    
+    minKey = [[sortedKeys objectAtIndex:0] intValue];
+    maxKey = [[sortedKeys objectAtIndex:[sortedKeys count]-1] intValue];
+    
+    NSLog(@"keys  %d, %d ", minKey, maxKey);
     //chonologically sorting, will be used for visualizing
     for(id ky in sortedKeys){
         int value=[(NSMutableArray*)[data objectForKey:ky] count];
@@ -120,8 +131,11 @@
     
     self.layer.masksToBounds = YES;
     
-    height = self.layer.frame.size.height;
-    eachWidth = self.layer.frame.size.width/([dataPoints count] +1);
+    height = roundf(self.layer.frame.size.height);
+    eachWidth = roundf(self.layer.frame.size.width/([dataPoints count] +1));
+    
+    minKey = [[sortedKeys objectAtIndex:0] intValue];
+    maxKey = [[sortedKeys objectAtIndex:[sortedKeys count]-1] intValue];
     
     
     max = [[[dataPoints allValues] valueForKeyPath: @"@max.self"] floatValue];
@@ -131,35 +145,51 @@
 }
 
 
--(void) adjustAnchor:(CGPoint) anchor {
+-(void) adjustAnchor:(UIGestureRecognizer*) sender {
     NSLog(@"adjusting anchor");
-    shapeLayer.anchorPoint = CGPointMake(anchor.x / shapeLayer.bounds.size.width, shapeLayer.anchorPoint.y);
+    if (sender.state == UIGestureRecognizerStateBegan) {
+        UIView *piece = (UIView*)self;
+        center  = [sender locationInView:piece];
+        NSLog(@"adjusting anchor, %f , %f ", center.x, center.y);
+        CGPoint locationInSuperview = [sender locationInView:(UIView*)self.superview];
+        shapeLayer.anchorPoint = CGPointMake(center.x / shapeLayer.bounds.size.width, shapeLayer.anchorPoint.y);
+        shapeLayer.position = CGPointMake(locationInSuperview.x, shapeLayer.position.y);
+    }
     
+    
+//    shapeLayer.anchorPoint = CGPointMake(anchor.x / shapeLayer.bounds.size.width, shapeLayer.anchorPoint.y);
+  
 }
 
--(void) zoomTo:(float) scalez withCenter:(CGPoint) center{
+-(void) zoomTo:(float) scalez {
     //TODO:zoom should be centered around the touch point
     
     zooming = YES;
     scale = scalez;
     NSRange theRange;
-    NSLog(@"scale %f", scale);
+//    NSLog(@"scale %f", scale);
 //    eachWidth *=scale;
     //Center the zooming around the pinch point
     
-    int visiblePoints = (int)(self.layer.frame.size.width/(eachWidth*scale));
-    NSLog(@"visible points %d", visiblePoints);
+    minKey = [[sortedKeys objectAtIndex:0] intValue];
+    maxKey = [[sortedKeys objectAtIndex:[sortedKeys count]-1] intValue];
     
-    if(visiblePoints <= [dataPoints count]){
+    int visiblePoints = (int)(self.layer.frame.size.width/(eachWidth*scale));
+//    NSLog(@"visible points %d", visiblePoints);
+    
+//    shapeLayer.transform;
+    
+//    if(visiblePoints <= [dataPoints count])
+    {
         theRange.length = (int)(roundf(visiblePoints-0.5))-1; // considering scale = 2
         //        NSLog(@"%d, %d", theRange.length, [visibleKeys count]);
         int midvalue = (int)(roundf(center.x/(eachWidth*scale)-0.5));
        
         theRange.location = MAX(0, (int)(midvalue-theRange.length/2));
         int last = MIN([dataPoints count]-1, theRange.location+theRange.length);
-        theRange.length= last-theRange.location;
+        theRange.length= last-theRange.location; // +1 ?
         
-        NSLog(@"%d, %d,  %d", theRange.length, midvalue, theRange.location);
+//        NSLog(@"%d, %d,  %d", theRange.length, midvalue, theRange.location);
         
         visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:theRange ] ;
         
@@ -172,20 +202,21 @@
         shapeLayer.transform = CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0);
         [CATransaction commit];
         [shapeLayer addAnimation:animatePath forKey:nil];
-        NSLog(@"zooming");
+//        NSLog(@"zooming");
 
-        } else {
-            NSLog(@"doing nothing %d, scale %f ", visiblePoints, scalez );
-            scalez = 1.0;
-            return;
-    }
+        }
+//    else {
+//            NSLog(@"doing nothing %d, scale %f ", visiblePoints, scalez );
+//            scalez = 1.0;
+//            return;
+//    }
 //
     
 }
 
 
 -(void) panView:(CGPoint) translate{
-    NSLog(@"translating view ");
+//    NSLog(@"translating view ");
     CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
     [animatePath setFromValue: [NSValue valueWithCATransform3D:shapeLayer.transform]];//identity or shapeLayer.transform
     [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DTranslate(shapeLayer.transform, translate.x*0.2, 0.0, 0.0) ]];
@@ -202,7 +233,7 @@
 
 //TODO:need to call it after panning, too
 -(void) adjustYscale {
-    //return;
+    return;
     // now change the y-axis with animation
     float cmax = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue];
     if(cmax!=max){

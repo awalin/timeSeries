@@ -29,6 +29,6 @@
 @property NSString* vizType;
 
 -(void) setData:(UsherTimeSeries* )data;
--(void) zoomTo:(float)scale withCenter:(CGPoint) center;
+-(void) zoomTo:(float)scale ;
 -(void) adjustYvalues ;
 @end
