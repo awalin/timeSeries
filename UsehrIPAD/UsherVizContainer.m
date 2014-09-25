@@ -17,7 +17,7 @@
 -(void) setData:(UsherTimeSeries* )data{
     
     self.graphValues = data;
-    self.mainViz = [[UsherTimeseriesViz alloc] initWithFrame:CGRectMake(50, 50, 650, 400)];
+    self.mainViz = [[UsherTimeseriesViz alloc] initWithFrame:CGRectMake(50, 50, 650, 440)];
     [self addSubview:self.mainViz];
     [self.mainViz setData:data.timeSeries];
      //[self setNeedsDisplay];

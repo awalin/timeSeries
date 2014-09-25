@@ -61,7 +61,7 @@
     
     if (sender.state==UIGestureRecognizerStateBegan) {
         NSLog(@" pannig ");
-		 [self.timeseriesView.mainViz adjustAnchor: sender];
+//		 [self.timeseriesView.mainViz adjustAnchor: sender];
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
    
@@ -88,7 +88,7 @@
           
     } else if (sender.state==UIGestureRecognizerStateChanged) {
 //        if(scale<=1.00 && sender.scale<1.00){
-////            zoomScaleCurrent = scale;
+//           zoomScaleCurrent = scale;
 //            NSLog(@"not caling zoom ");
 //            return;
 //        }

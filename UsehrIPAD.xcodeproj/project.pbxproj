@@ -18,7 +18,6 @@
 		E77579D519BE3AD6006AD0E5 /* UsherDataStructure.m in Sources */ = {isa = PBXBuildFile; fileRef = E77579D419BE3AD6006AD0E5 /* UsherDataStructure.m */; };
 		E77579D719BE4AE0006AD0E5 /* Usher-selectedUsers.csv in Resources */ = {isa = PBXBuildFile; fileRef = E77579D619BE4AE0006AD0E5 /* Usher-selectedUsers.csv */; };
 		E77579DA19BF8939006AD0E5 /* UsherTimeSeries.m in Sources */ = {isa = PBXBuildFile; fileRef = E77579D919BF8939006AD0E5 /* UsherTimeSeries.m */; };
-		E77579E319BF9881006AD0E5 /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E77579E219BF9837006AD0E5 /* libCorePlot-CocoaTouch.a */; };
 		E79987EA19AD131E003D35B6 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E79987E919AD131E003D35B6 /* Foundation.framework */; };
 		E79987EC19AD131E003D35B6 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E79987EB19AD131E003D35B6 /* CoreGraphics.framework */; };
 		E79987EE19AD131E003D35B6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E79987ED19AD131E003D35B6 /* UIKit.framework */; };
@@ -31,31 +30,16 @@
 		E799880519AD131E003D35B6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E79987ED19AD131E003D35B6 /* UIKit.framework */; };
 		E799880D19AD131E003D35B6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E799880B19AD131E003D35B6 /* InfoPlist.strings */; };
 		E799880F19AD131E003D35B6 /* UsehrIPADTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E799880E19AD131E003D35B6 /* UsehrIPADTests.m */; };
-		E7FB2EDB19C0BC8000F50FFD /* libCorePlot-CocoaTouch.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E77579E219BF9837006AD0E5 /* libCorePlot-CocoaTouch.a */; };
 		E7FB2EDD19C0BC9200F50FFD /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7FB2EDC19C0BC9200F50FFD /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		E77579E119BF9837006AD0E5 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E77579DB19BF9837006AD0E5 /* CorePlot-CocoaTouch.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = BC9B83470FB8A0A40035D8DA;
-			remoteInfo = "CorePlot-CocoaTouch";
-		};
 		E799880619AD131E003D35B6 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = E79987DE19AD131E003D35B6 /* Project object */;
 			proxyType = 1;
 			remoteGlobalIDString = E79987E519AD131E003D35B6;
 			remoteInfo = UsehrIPAD;
-		};
-		E7FB2ED619C0BC7700F50FFD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = E77579DB19BF9837006AD0E5 /* CorePlot-CocoaTouch.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = BC9B83460FB8A0A40035D8DA;
-			remoteInfo = "CorePlot-CocoaTouch";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -76,7 +60,6 @@
 		E77579D619BE4AE0006AD0E5 /* Usher-selectedUsers.csv */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "Usher-selectedUsers.csv"; path = "../../../Desktop/Usher-selectedUsers.csv"; sourceTree = "<group>"; };
 		E77579D819BF8939006AD0E5 /* UsherTimeSeries.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsherTimeSeries.h; sourceTree = "<group>"; };
 		E77579D919BF8939006AD0E5 /* UsherTimeSeries.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UsherTimeSeries.m; sourceTree = "<group>"; };
-		E77579DB19BF9837006AD0E5 /* CorePlot-CocoaTouch.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = "CorePlot-CocoaTouch.xcodeproj"; sourceTree = "<group>"; };
 		E79987E619AD131E003D35B6 /* UsehrIPAD.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = UsehrIPAD.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E79987E919AD131E003D35B6 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		E79987EB19AD131E003D35B6 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -102,7 +85,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E773149A19C0CC43009BD691 /* QuartzCore.framework in Frameworks */,
-				E77579E319BF9881006AD0E5 /* libCorePlot-CocoaTouch.a in Frameworks */,
 				E79987EC19AD131E003D35B6 /* CoreGraphics.framework in Frameworks */,
 				E79987EE19AD131E003D35B6 /* UIKit.framework in Frameworks */,
 				E79987EA19AD131E003D35B6 /* Foundation.framework in Frameworks */,
@@ -114,7 +96,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				E7FB2EDD19C0BC9200F50FFD /* QuartzCore.framework in Frameworks */,
-				E7FB2EDB19C0BC8000F50FFD /* libCorePlot-CocoaTouch.a in Frameworks */,
 				E799880319AD131E003D35B6 /* XCTest.framework in Frameworks */,
 				E799880519AD131E003D35B6 /* UIKit.framework in Frameworks */,
 				E799880419AD131E003D35B6 /* Foundation.framework in Frameworks */,
@@ -150,20 +131,11 @@
 			name = View;
 			sourceTree = "<group>";
 		};
-		E77579DC19BF9837006AD0E5 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				E77579E219BF9837006AD0E5 /* libCorePlot-CocoaTouch.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		E79987DD19AD131E003D35B6 = {
 			isa = PBXGroup;
 			children = (
 				E70A2B5B19C3A8100084F302 /* usher-HQ.csv */,
 				E77579D619BE4AE0006AD0E5 /* Usher-selectedUsers.csv */,
-				E77579DB19BF9837006AD0E5 /* CorePlot-CocoaTouch.xcodeproj */,
 				E79987EF19AD131E003D35B6 /* UsehrIPAD */,
 				E799880819AD131E003D35B6 /* UsehrIPADTests */,
 				E79987E819AD131E003D35B6 /* Frameworks */,
@@ -267,7 +239,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				E7FB2ED719C0BC7700F50FFD /* PBXTargetDependency */,
 				E799880719AD131E003D35B6 /* PBXTargetDependency */,
 			);
 			name = UsehrIPADTests;
@@ -303,12 +274,6 @@
 			mainGroup = E79987DD19AD131E003D35B6;
 			productRefGroup = E79987E719AD131E003D35B6 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = E77579DC19BF9837006AD0E5 /* Products */;
-					ProjectRef = E77579DB19BF9837006AD0E5 /* CorePlot-CocoaTouch.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				E79987E519AD131E003D35B6 /* UsehrIPAD */,
@@ -316,16 +281,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		E77579E219BF9837006AD0E5 /* libCorePlot-CocoaTouch.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = "libCorePlot-CocoaTouch.a";
-			remoteRef = E77579E119BF9837006AD0E5 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		E79987E419AD131E003D35B6 /* Resources */ = {
@@ -382,11 +337,6 @@
 			isa = PBXTargetDependency;
 			target = E79987E519AD131E003D35B6 /* UsehrIPAD */;
 			targetProxy = E799880619AD131E003D35B6 /* PBXContainerItemProxy */;
-		};
-		E7FB2ED719C0BC7700F50FFD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = "CorePlot-CocoaTouch";
-			targetProxy = E7FB2ED619C0BC7700F50FFD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
