@@ -69,7 +69,7 @@
         if(!self.popOverController){
                 
             UsherIPADTooltipContent* tooltip  = [[UsherIPADTooltipContent alloc] init];
-            CGPoint touchPoint =  [sender locationInView:self.view];
+            CGPoint touchPoint =  [sender locationInView:self.timeseriesView.mainViz];
             
             [self.timeseriesView showTooltip:sender];
             
@@ -115,11 +115,8 @@
         
 	}else if(sender.state==UIGestureRecognizerStateEnded){
         
-        
-    }
+  }
 
-    //calsulate touch begin and end, and span, how to zoom
-    //go to the viz container, then go to its chart view, redraw
 }
 
 
@@ -127,23 +124,18 @@
 -(void) screenZoom: (UIPinchGestureRecognizer *) sender{
     
       if (sender.state==UIGestureRecognizerStateBegan) {
-        scale = zoomScaleCurrent;
+        zoomScaleCurrent = 1.0;
         NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
        [self.timeseriesView.mainViz adjustAnchor: sender];
           
     } else if (sender.state==UIGestureRecognizerStateChanged) {
-//        if(scale<=1.00 && sender.scale<1.00){
-//           zoomScaleCurrent = scale;
-//            NSLog(@"not caling zoom ");
-//            return;
-//        }
-//        NSLog(@" zoom ");
-		scale = zoomScaleCurrent*sender.scale;
+        scale = 1.0 -(zoomScaleCurrent - sender.scale);
+        zoomScaleCurrent = sender.scale;
         [self.timeseriesView zoomTo:scale];
-
         
-	}else if(sender.state==UIGestureRecognizerStateEnded){
-        zoomScaleCurrent = scale;
+        
+   }else if(sender.state==UIGestureRecognizerStateEnded){
+//        zoomScaleCurrent = scale;
         // dragging finished, now adjust the y-axis values
         [self.timeseriesView adjustYvalues];
         
@@ -159,7 +151,7 @@
 -(void) readFile{
     
     UsherIPADFileReader *aReader = [[UsherIPADFileReader alloc] init];
-    [aReader setFilename:@"usher-HQ"];
+    [aReader setFilename:@"Usher-selectedUsers"];
     
     UsherTimeSeries* allData = [[UsherTimeSeries alloc] init];
     [allData setTransactions:[aReader readDataFromFileAndCreateObject]];
