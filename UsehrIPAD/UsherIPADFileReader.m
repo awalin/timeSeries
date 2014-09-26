@@ -34,7 +34,7 @@
 //    NSLog(@"%@", path);
     NSArray* lines = [stringFromFile componentsSeparatedByString:@"\r"] ;
     int totalRows = [lines count]-1;
-    NSMutableArray *transactions = [[NSMutableArray alloc] init];
+    NSMutableDictionary *transactions = [[NSMutableDictionary alloc] init];
     NSLog(@"Total %d", totalRows);
     
     //start  showing progress bar here, sends message to the controller//
@@ -48,7 +48,7 @@
         UsherDataStructure *aTransaction = [[UsherDataStructure alloc] init];
         //here populate the array objects
         [aTransaction createDataObject: fields];
-        [transactions addObject:aTransaction];//adding the new object to the array
+        [transactions setObject:aTransaction forKey:aTransaction.transId];//adding the new object to the array
     }
     
     NSLog(@"Total rows: %d", totalRows);

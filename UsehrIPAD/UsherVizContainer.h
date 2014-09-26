@@ -29,6 +29,7 @@
 @property NSString* vizType;
 
 -(void) setData:(UsherTimeSeries* )data;
--(void) zoomTo:(float)scale ;
+-(void) zoomTo:(float)scale  ;
+-(void) showTooltip:(UIGestureRecognizer*) sender ;
 -(void) adjustYvalues ;
 @end

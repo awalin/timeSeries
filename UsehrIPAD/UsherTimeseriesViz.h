@@ -51,5 +51,6 @@ typedef enum {
 -(void) adjustYscale;
 -(void) panView:(CGPoint) translate;
 -(void) adjustAnchor:(UIGestureRecognizer*) sender;
+-(id) getTouchKey : (UIGestureRecognizer*) sender;
 
 @end

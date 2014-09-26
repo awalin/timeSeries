@@ -22,7 +22,7 @@
 
 
 @property NSMutableDictionary *timeSeries;
-@property (strong) NSMutableArray  *transactions;
+@property (strong) NSMutableDictionary  *transactions;
 @property double min;
 @property double max;
 @property int aggregation;//zoom level

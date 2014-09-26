@@ -10,9 +10,12 @@
 
 #import "UsherTimeSeries.h"
 #import "UsherVizContainer.h"
+@class UsherIPADTooltipContent;
 
-@interface UsherIPADParentViewController : UIViewController
+@interface UsherIPADParentViewController : UIViewController <UIPopoverControllerDelegate>
+
 
 @property UsherVizContainer* timeseriesView;
+@property UIPopoverController* popOverController;
 
 @end

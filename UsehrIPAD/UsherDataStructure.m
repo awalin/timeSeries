@@ -16,6 +16,7 @@
     [self setTransId:[fromFile objectAtIndex:0]];
     [self setTransType:[fromFile objectAtIndex:2]];
     [self setSuccess:[fromFile objectAtIndex:4]];
+    [self setTransUserId:[fromFile objectAtIndex:7]];
     [self setWeekDay:[fromFile objectAtIndex:13]];
     [self setMonth:[fromFile objectAtIndex:14] ];
     
@@ -23,7 +24,7 @@
     
     NSCharacterSet *doNotWant = [NSCharacterSet characterSetWithCharactersInString:@"\" "];
     self.weekDay = [[self.weekDay componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
-    
+  
     [self setYear:[fromFile objectAtIndex:15]];
     self.year = [[self.year componentsSeparatedByCharactersInSet: doNotWant] componentsJoinedByString: @""];
  

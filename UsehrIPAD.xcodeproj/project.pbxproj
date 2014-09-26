@@ -30,6 +30,7 @@
 		E799880519AD131E003D35B6 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E79987ED19AD131E003D35B6 /* UIKit.framework */; };
 		E799880D19AD131E003D35B6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E799880B19AD131E003D35B6 /* InfoPlist.strings */; };
 		E799880F19AD131E003D35B6 /* UsehrIPADTests.m in Sources */ = {isa = PBXBuildFile; fileRef = E799880E19AD131E003D35B6 /* UsehrIPADTests.m */; };
+		E7D759B019D5D5E000B0F5AA /* UsherIPADTooltipContent.m in Sources */ = {isa = PBXBuildFile; fileRef = E7D759AF19D5D5E000B0F5AA /* UsherIPADTooltipContent.m */; };
 		E7FB2EDD19C0BC9200F50FFD /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E7FB2EDC19C0BC9200F50FFD /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
@@ -76,6 +77,8 @@
 		E799880A19AD131E003D35B6 /* UsehrIPADTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "UsehrIPADTests-Info.plist"; sourceTree = "<group>"; };
 		E799880C19AD131E003D35B6 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		E799880E19AD131E003D35B6 /* UsehrIPADTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = UsehrIPADTests.m; sourceTree = "<group>"; };
+		E7D759AE19D5D5E000B0F5AA /* UsherIPADTooltipContent.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UsherIPADTooltipContent.h; sourceTree = "<group>"; };
+		E7D759AF19D5D5E000B0F5AA /* UsherIPADTooltipContent.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UsherIPADTooltipContent.m; sourceTree = "<group>"; };
 		E7FB2EDC19C0BC9200F50FFD /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -127,6 +130,8 @@
 				E70A2B5219C0DDEF0084F302 /* UsherIPADParentViewController.m */,
 				E70A2B5619C0F8390084F302 /* UsherTimeseriesViz.h */,
 				E70A2B5719C0F8390084F302 /* UsherTimeseriesViz.m */,
+				E7D759AE19D5D5E000B0F5AA /* UsherIPADTooltipContent.h */,
+				E7D759AF19D5D5E000B0F5AA /* UsherIPADTooltipContent.m */,
 			);
 			name = View;
 			sourceTree = "<group>";
@@ -317,6 +322,7 @@
 				E77579DA19BF8939006AD0E5 /* UsherTimeSeries.m in Sources */,
 				E79987FA19AD131E003D35B6 /* UsherIPADAppDelegate.m in Sources */,
 				E70A2B5319C0DDEF0084F302 /* UsherIPADParentViewController.m in Sources */,
+				E7D759B019D5D5E000B0F5AA /* UsherIPADTooltipContent.m in Sources */,
 				E79987F619AD131E003D35B6 /* main.m in Sources */,
 				E773149519C0C91D009BD691 /* UsherVizContainer.m in Sources */,
 			);

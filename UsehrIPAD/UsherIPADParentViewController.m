@@ -14,6 +14,8 @@
 #import "UsherTimeseriesViz.h"
 #import <QuartzCore/QuartzCore.h>
 
+#import "UsherIPADTooltipContent.h"
+
 @implementation UsherIPADParentViewController {
 
     float zoomScaleCurrent;
@@ -51,15 +53,58 @@
     
     UIPinchGestureRecognizer *pinchGestureRecognizer = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(screenZoom:)];
     [self.view addGestureRecognizer:pinchGestureRecognizer];
+    
+    UITapGestureRecognizer *tapGestureRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(showTooltip:)];
+    [self.view addGestureRecognizer:tapGestureRecognizer];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(handleEasing:) name:@"Easing" object:nil];
+
 
 }
 
+
+-(void) showTooltip: (UITapGestureRecognizer*) sender {
+    if (sender.state == UIGestureRecognizerStateEnded) {
+       
+        if(!self.popOverController){
+                
+            UsherIPADTooltipContent* tooltip  = [[UsherIPADTooltipContent alloc] init];
+            CGPoint touchPoint =  [sender locationInView:self.view];
+            
+            [self.timeseriesView showTooltip:sender];
+            
+            self.popOverController = [[UIPopoverController alloc] initWithContentViewController:tooltip];
+            self.popOverController.delegate = self;
+            self.popOverController.backgroundColor=[UIColor colorWithRed:0.2 green:0.2 blue:0.22 alpha:0.8];
+            
+            [self.popOverController presentPopoverFromRect:CGRectMake(touchPoint.x, touchPoint.y, 1, 1)
+                                                    inView: self.timeseriesView.mainViz
+                                  permittedArrowDirections:UIPopoverArrowDirectionAny
+                                                  animated:YES];
+        }
+    }
+
+
+}
+
+-(void)handleEasing:(NSNotification *)note
+{   if (self.popOverController) {
+    [self.popOverController dismissPopoverAnimated:YES];
+    
+    NSLog(@"handled easing");
+    }
+}
+
+//may not be needed anymore
+- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController{
+        NSLog(@"popover closed");
+       [[NSNotificationCenter defaultCenter] postNotificationName:@"Easing" object:self userInfo:nil];
+}
+
+
 -(void) screenPan: (UIPanGestureRecognizer *)sender {
     
-    
-    
-    
-    if (sender.state==UIGestureRecognizerStateBegan) {
+   if (sender.state==UIGestureRecognizerStateBegan) {
         NSLog(@" pannig ");
 //		 [self.timeseriesView.mainViz adjustAnchor: sender];
 	}
@@ -84,7 +129,7 @@
       if (sender.state==UIGestureRecognizerStateBegan) {
         scale = zoomScaleCurrent;
         NSLog(@"current zoom scale %f", zoomScaleCurrent) ;
-        [self.timeseriesView.mainViz adjustAnchor: sender];
+       [self.timeseriesView.mainViz adjustAnchor: sender];
           
     } else if (sender.state==UIGestureRecognizerStateChanged) {
 //        if(scale<=1.00 && sender.scale<1.00){
@@ -114,15 +159,15 @@
 -(void) readFile{
     
     UsherIPADFileReader *aReader = [[UsherIPADFileReader alloc] init];
-    [aReader setFilename:@"Usher-selectedUsers"];
+    [aReader setFilename:@"usher-HQ"];
     
     UsherTimeSeries* allData = [[UsherTimeSeries alloc] init];
     [allData setTransactions:[aReader readDataFromFileAndCreateObject]];
     
     NSMutableDictionary *timeSeries = [[NSMutableDictionary alloc] init];
     //aggreagation level= hourly
-    NSNumber* max = [allData.transactions valueForKeyPath: @"@max.transTimeStamp"];
-    NSNumber* min = [allData.transactions valueForKeyPath: @"@min.transTimeStamp"];
+    NSNumber* max = [[allData.transactions allValues] valueForKeyPath: @"@max.transTimeStamp"];
+    NSNumber* min = [[allData.transactions allValues] valueForKeyPath: @"@min.transTimeStamp"];
   
     float aggregation = 60*60*24;//aggregate per hour
 
@@ -157,7 +202,7 @@
         [timeSeries setObject:values forKey: ky];
     }
     int i = 0 ;
-    for(UsherDataStructure* aTrans in allData.transactions){
+    for(UsherDataStructure* aTrans in [allData.transactions allValues]){
         id ky = [NSNumber numberWithInt:((aTrans.transTimeStamp- [min floatValue])/aggregation)];
 //         NSLog(@"init key %@, %@ %d, %@", ky, [timeSeries objectForKey:ky],i ,aTrans.transId);
 //        int obvalue = [[timeSeries objectForKey:ky] integerValue]+1;

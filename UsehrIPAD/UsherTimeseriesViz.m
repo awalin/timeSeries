@@ -31,6 +31,7 @@
     CGPoint center;
     float contextHeight;
     float axisWidth;
+    NSMutableDictionary* allData;
 }
 
 
@@ -177,7 +178,8 @@
         [dataPoints setObject:[NSNumber numberWithInt:value] forKey: ky];
         
     }
-
+    allData = [[NSMutableDictionary alloc] init];
+    allData = data;
     
     shapeLayer = [CAShapeLayer layer];
     [shapeLayer setBounds:CGRectMake(0.0, 0.0, [self frame].size.width- axisWidth, [self frame].size.height- contextHeight)];
@@ -234,22 +236,25 @@
         UIView *piece = (UIView*)self;
         center  = [sender locationInView:piece]; // new Anchor point
         NSLog(@"center %f", center.x);
-       
-        float newAnchorX = center.x/(shapeLayer.bounds.size.width); // *scale?
-        float oldPointX  = shapeLayer.anchorPoint.x*shapeLayer.bounds.size.width;
-        float centerX = center.x;//* scale; //apply transfor
-        oldPointX = oldPointX;//*scale; // apply transform
-        float positionX = shapeLayer.position.x;
-        positionX -= oldPointX;
-        positionX += centerX;
-        
-        shapeLayer.anchorPoint = CGPointMake(newAnchorX ,  shapeLayer.anchorPoint.y);
-        shapeLayer.position = CGPointMake(positionX, shapeLayer.position.y);
-        //        CGPoint locationInSuperview = [sender locationInView:(UIView*)self.superview];
-        //        NSLog(@"new location in super , %f , %f ", locationInSuperview.x, locationInSuperview.y);
-        
-        NSLog(@"new anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
-        NSLog(@"new position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
+        [self visibleData];
+        center = CGPointMake(center.x- axisWidth, center.y);
+        NSLog(@"after re adjusting fro y-axis center %f", center.x);
+//        
+//        float newAnchorX = (center.x)/(shapeLayer.bounds.size.width); // *scale?
+//        float oldPointX  = shapeLayer.anchorPoint.x*shapeLayer.bounds.size.width;
+//        float centerX = center.x ;//* scale; //apply transfor
+//        oldPointX = oldPointX;//*scale; // apply transform
+//        float positionX = shapeLayer.position.x;
+//        positionX -= oldPointX;
+//        positionX += centerX;
+//        
+//        shapeLayer.anchorPoint = CGPointMake(newAnchorX ,  shapeLayer.anchorPoint.y);
+//        shapeLayer.position = CGPointMake(positionX, shapeLayer.position.y);
+//        //        CGPoint locationInSuperview = [sender locationInView:(UIView*)self.superview];
+//        //        NSLog(@"new location in super , %f , %f ", locationInSuperview.x, locationInSuperview.y);
+//        
+//        NSLog(@"new anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
+//        NSLog(@"new position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
     }
     
     
@@ -263,15 +268,15 @@
     zooming = YES;
     
     scale = scalez; // new scale
-    CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
-    [animatePath setFromValue: [NSValue valueWithCATransform3D:shapeLayer.transform]];
-    [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0) ]];
-    [animatePath setDuration:0.25];
-    [CATransaction begin]; // this removes the jittering effect
-    [CATransaction setDisableActions:YES];
-    shapeLayer.transform = CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0);
-    [CATransaction commit];
-    [shapeLayer addAnimation:animatePath forKey:nil];
+//    CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
+//    [animatePath setFromValue: [NSValue valueWithCATransform3D:shapeLayer.transform]];
+//    [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0) ]];
+//    [animatePath setDuration:0.25];
+//    [CATransaction begin]; // this removes the jittering effect
+//    [CATransaction setDisableActions:YES];
+//    shapeLayer.transform = CATransform3DScale(shapeLayer.transform, scale, 1.0, 1.0);
+//    [CATransaction commit];
+//    [shapeLayer addAnimation:animatePath forKey:nil];
     
     
 }
@@ -293,14 +298,37 @@
     
 }
 
+-(id) getTouchKey : (UIGestureRecognizer*) sender{
+        UIView *piece = (UIView*)self;
+        center  = [sender locationInView:piece]; // new Anchor point
+        NSLog(@"center %f", center.x);
+        center = CGPointMake(center.x- axisWidth, center.y);
+        NSLog(@"after re adjusting fro y-axis center %f", center.x);
+        float anchorData = (center.x/shapeLayer.bounds.size.width)*[dataPoints count]; // considering only scaling, and no pannig
+        id anchorKey = [NSNumber numberWithInt:(int)(anchorData)];
+//        id allValue = [allData objectForKey:anchorKey];
+//        NSLog(@"anchor data point value: %@, for key: %@", allValue, anchorKey);
+    
+    return anchorKey;
 
+
+}
+    
+    
+-(void) visibleData {
+//    float visible = 100.00/scale;
+//    int visibleLength = (int)(roundf([dataPoints count]*1.00/scale));
+    float anchorData = (center.x/shapeLayer.bounds.size.width)*[dataPoints count]; // considering only scaling, and no pannig
+    id anchorKey = [NSNumber numberWithInt:(int)(anchorData)];
+//    id value = [dataPoints objectForKey:anchorKey];
+    id allValue = [allData objectForKey:anchorKey];
+    NSLog(@"anchor data point value: %@, for key: %@", allValue, anchorKey);
+    
+}
 
 //TODO:need to call it after panning, too
 -(void) adjustYscale {
     return;
-    
-    
-    
     // now change the y-axis with animation
     float cmax = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue];
     if(cmax!=max){
@@ -341,8 +369,6 @@
         
         [shapeLayer addAnimation:animatePath forKey:nil];
         shapeLayer.path = chart.CGPath;
-        
-        
         
         //    visibleKeys = [[NSMutableArray alloc] init];
         //
