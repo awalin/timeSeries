@@ -34,6 +34,7 @@
     float contextHeight;
     float axisWidth;
     NSMutableDictionary* allData;
+    CALayer* focusLayer;
 }
 
 
@@ -71,7 +72,6 @@
         i++;
         
     }
-    [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,height)] atIndexedSubscript:i];
     
     NSValue *val = [points objectAtIndex:0];
     CGPoint point = [val CGPointValue];
@@ -80,14 +80,23 @@
     //    [chart setLineJoinStyle:kCALineJoinRound];
     [chart moveToPoint:CGPointMake(0.0, height)];
     //creating the path
-    for(int j = 0; j<=i; j++){
+    for(int j = 0; j<i; j++){
         val = [points objectAtIndex:j];
         point = [val CGPointValue];
         //        NSLog(@"x: %f, y %f ", point.x, point.y);
         [chart  addLineToPoint:point];
     }
-//    [chart closePath];
     shapeLayer.path = chart.CGPath;
+    
+}
+
+
+-(void) highlightFocus {
+
+    float maskStartX = minKey*contextLayer.frame.size.width/[dataPoints count];
+    float maskEndX = maxKey*contextLayer.frame.size.width/[dataPoints count];
+    float focusWidth = maskEndX-maskStartX;
+    focusLayer.frame = CGRectMake(maskStartX, 0, focusWidth,contextLayer.frame.size.height);
 
 }
 
@@ -136,24 +145,26 @@
 
 -(void) drawLayers{
     
+    
     int i =0;
     float x=0.0;
-    float widthPerPoint = roundf((shapeLayer.bounds.size.width)/([dataPoints count] +1));
-
+    float widthPerPoint = roundf((shapeLayer.frame.size.width)/([dataPoints count] +1));
+    
+    //draw context layer
     for(id ky in sortedKeys){
         x = [ky floatValue]*widthPerPoint; // + translation - center.x
         //        NSLog(@"keys: %d, position %f ", [ky intValue], x);
-        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(contextLayer.bounds.size.height/max);
+        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(contextLayer.frame.size.height/max);
         [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
         i++;
     }
-    [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,contextLayer.bounds.size.height)] atIndexedSubscript:i];
+   [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,contextLayer.frame.size.height)] atIndexedSubscript:i];
     NSValue *val = [points objectAtIndex:0];
     CGPoint point = [val CGPointValue];
     
     chart = [UIBezierPath bezierPath];
     //    [chart setLineJoinStyle:kCALineJoinRound];
-    [chart moveToPoint:CGPointMake(0.0, contextLayer.bounds.size.height)];
+    [chart moveToPoint:CGPointMake(0.0, contextLayer.frame.size.height)];
     //creating the path
     for(int j = 0; j<=i; j++){
         val = [points objectAtIndex:j];
@@ -165,6 +176,18 @@
     contextLayer.path = chart.CGPath;
     
     
+    float maskStartX = minKey*contextLayer.frame.size.width/[dataPoints count];
+    float maskEndX = maxKey*contextLayer.frame.size.width/[dataPoints count];
+    float focusWidth = maskEndX-maskStartX;
+    
+    focusLayer.bounds = CGRectMake(maskStartX, 0, focusWidth,contextLayer.frame.size.height);
+    focusLayer.anchorPoint = CGPointZero;
+    focusLayer.position = CGPointMake(maskStartX,0);
+    focusLayer.opacity = 0.4;
+    focusLayer.backgroundColor = [UIColor blueColor].CGColor;
+    [contextLayer addSublayer:focusLayer];
+    
+
     
     [self drawShapeLayer];
     
@@ -218,7 +241,7 @@
     shapeLayer.masksToBounds = YES; // does not work//
     
     minKey = [[sortedKeys objectAtIndex:0] intValue];
-    maxKey = [[sortedKeys objectAtIndex:[sortedKeys count]-1] intValue]-20;
+    maxKey = [[sortedKeys objectAtIndex:[sortedKeys count]-1] intValue];
     pathMin =  minKey;
     pathMax = maxKey;
     
@@ -239,6 +262,9 @@
     [axisLayer setPosition: CGPointMake((axisWidth/2),
                                          (self.frame.size.height-contextHeight)/2)];
 //    axisLayer.backgroundColor = [UIColor grayColor].CGColor;
+    
+    
+    focusLayer = [CALayer layer];
     
     [self.layer addSublayer:shapeLayer];
     [self.layer addSublayer:contextLayer];
@@ -308,14 +334,14 @@
         maxKey = [dataPoints count]-1;
     }
  
-    NSRange visibleRange ;
-    visibleRange.location = minKey;
-    visibleRange.length = maxKey-minKey;
-    NSLog(@"visible points %d, Anchor point %f", visibleLength, anchorPoint);
-    NSLog(@"anchor key: %@, min = %d,max =  %d, scale %f ", anchorKey, minKey, maxKey, scale);
-
-    // Always create from the super array with all data
-    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
+//    NSRange visibleRange ;
+//    visibleRange.location = minKey;
+//    visibleRange.length = maxKey-minKey;
+//    NSLog(@"visible points %d, Anchor point %f", visibleLength, anchorPoint);
+//    NSLog(@"anchor key: %@, min = %d,max =  %d, scale %f ", anchorKey, minKey, maxKey, scale);
+//
+//    // Always create from the super array with all data
+//    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
     
     [self drawShapeLayer];
     
@@ -337,142 +363,76 @@
   
     NSLog(@"before translation: min = %d,max =  %d", minKey, maxKey);
     translation = -translate;
-    int keysInbetween = fabs(translation/eachWidth);
-    int totalKeys = maxKey-minKey+1;// (int)(roundf(shapeLayer.bounds.size.width + fabs(translation))/eachWidth);//previous visible keys+ keysinbetween, roughly
-    
-    if(translation>0) { //add new points to the right side of the path, shoft left
+    int keysInbetween = (int)((fabs(translation/eachWidth)));
+    NSLog(@"keys in between %d, translation %f", keysInbetween, translation);
+//    int totalKeys = (int)((shapeLayer.bounds.size.width+fabs(translation))/eachWidth);//previous visible keys+ keysinbetween, roughly
+
+    if(translation>0 && keysInbetween>0) { //add new points to the right side of the path, shoft left
         NSLog(@"new max ");
         //alternative approach, draw the entire path again//
         int newMax = maxKey+keysInbetween; //keep the old min
-//        if(newMax>[dataPoints count]-1){
-//          newMax = [dataPoints count]-1;
-//          translation = (newMax-maxKey)/eachWidth;
-//        }
         float x=0.0;
-        int i=0;
+        int endkey = MIN(newMax,[dataPoints count]-1);
+        
         chart = [UIBezierPath bezierPath];
-        //    [chart setLineJoinStyle:kCALineJoinRound];
-        [chart moveToPoint:CGPointMake(0.0, height)];
+        id ky = [NSNumber numberWithInt:minKey]; // what if there is no such keys?
+        //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
+        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+        [chart  moveToPoint:CGPointMake(0,y)];
         
         //or the max can be the max of the visible values
-        for(int  k=minKey ; k<= MIN(newMax,[dataPoints count]-1); k++){
-            id ky= [NSNumber numberWithInt:k]; // what if there is no such keys?
+        for(int  k = minKey ; k<= endkey; k++){
+            id ky = [NSNumber numberWithInt:k]; // what if there is no such keys?
             x = ([ky intValue]-minKey)*(eachWidth);
             //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
             float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
             [chart  addLineToPoint:CGPointMake(x,y)];
-            i++;
         }
-        [chart  addLineToPoint:CGPointMake(x,height)];
-
-        //    [chart closePath];
         shapeLayer.path = chart.CGPath;
-        maxKey = MIN(newMax,[dataPoints count]-1);
-        keysInbetween = fabs(translation/eachWidth);
-        minKey = minKey + keysInbetween;
+        maxKey = endkey;//MIN(newMax,[dataPoints count]-1);
+        minKey = minKey+ keysInbetween;
        
         if(minKey<0) {
             minKey = 0;
         }
-      
-
-        //           if(newMax < pathMax){
-//               return; // that part of the path already visible, no need to add extra path
-//           }
-//        //add points to the end of the existing line
-//        
-//        UIBezierPath* pathSegment = [UIBezierPath bezierPath];
-//        id k = [NSNumber numberWithInt:maxKey];
-//        float  x = (maxKey-minKey)*(eachWidth) ; // + translation
-//        //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-//        float y = (max-[[dataPoints objectForKey:k] floatValue])*(height/max);
-//        CGPoint start= CGPointMake(x, y);
-//        [pathSegment moveToPoint:start];
-//        
-//        for(int j = maxKey+1; j<=maxKey+keysInbetween; j++){
-//            
-//            id k = [NSNumber numberWithInt:j];
-//            float  x = (j-minKey)*(eachWidth) ; // + translation
-//            //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-//            float y = (max-[[dataPoints objectForKey:k] floatValue])*(height/max);
-//            CGPoint point = CGPointMake(x,y);
-//            [pathSegment  addLineToPoint:point];
-//
-//        }
-//        
-//        CGPathAddPath((CGMutablePathRef)shapeLayer.path, NULL, pathSegment.CGPath);
         
-    }
-    else if( translation < 0) { //add new points to the right side of the path
+        NSLog(@"after translation min = %d,max =  %d",  minKey, maxKey);
+      
+   } else if( translation < 0 && keysInbetween>0) { //add new points to the right side of the path
             //add new points to the right side of the path, shoft left
         NSLog(@"new min");
         //alternative approach, draw the entire path again//
         int newMin = minKey-keysInbetween; //keep the old min
         float x=0.0;
-        int i=0;
-//        if(newMin<0){
-//            newMin=0;
-//            translation = (minKey-newMin)/eachWidth;// change the translation amount
-//        }
         chart = [UIBezierPath bezierPath];
-            //    [chart setLineJoinStyle:kCALineJoinRound];
+        int startkey = MAX(newMin,0);
+       
+        id ky = [NSNumber numberWithInt:startkey]; // what if there is no such keys?
+        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+        [chart  moveToPoint:CGPointMake(0,y)];
+
+        //    [chart setLineJoinStyle:kCALineJoinRound];
         [chart moveToPoint:CGPointMake(0.0, height)];
         //or the max can be the max of the visible values
-        for(int k = MAX(newMin,0) ; k<= maxKey; k++){
+        for(int k = startkey; k<= maxKey; k++){
                 id ky= [NSNumber numberWithInt:k];//what if there is no such keys ?
-                x = ([ky intValue]-newMin)*(eachWidth);
+                x = ([ky intValue]- newMin)*(eachWidth);
                 //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
                 float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
                 [chart  addLineToPoint:CGPointMake(x,y)];
-                i++;
-            }
-        [chart  addLineToPoint:CGPointMake(x,height)];
-        //    [chart closePath];
+        }
+
         shapeLayer.path = chart.CGPath;
-        minKey = MAX(newMin,0);
-        keysInbetween = fabs(translation/eachWidth);
-        maxKey = maxKey + keysInbetween;
+        minKey = startkey;
+        maxKey = maxKey-keysInbetween;
         
         if(maxKey > ([dataPoints count])-1){
             maxKey = [dataPoints count]-1;
         }
+        NSLog(@"after translation min = %d,max =  %d",  minKey, maxKey);
         
-//        NSLog(@"new min ");
-//        int newMin = minKey-keysInbetween;
-//        if(newMin >  pathMin){
-//            return; // that part of the path already visible, no need to add extra path
-//        }
-//        //add points before the existing line
-//        UIBezierPath* pathSegment = [UIBezierPath bezierPath];
-//        id k = [NSNumber numberWithInt:newMin];
-//        float  x = (newMin-minKey)*(eachWidth) ; // + translation
-//        //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-//        float y = (max-[[dataPoints objectForKey:k] floatValue])*(height/max);
-//        CGPoint start= CGPointMake(x, y);
-//        [pathSegment moveToPoint:start];
-//        
-//        for(int j = newMin+1; j<= minKey; j++){
-//            
-//            id k = [NSNumber numberWithInt:j];
-//            float  x = (j-minKey)*(eachWidth) ; // + translation
-//            //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-//            float y = (max-[[dataPoints objectForKey:k] floatValue])*(height/max);
-//            CGPoint point = CGPointMake(x,y);
-//            [pathSegment  addLineToPoint:point];
-//            
-//        }
-//        CGPathAddPath((CGMutablePathRef)shapeLayer.path, NULL, pathSegment.CGPath);
-    
    }
-    
-//    NSRange visibleRange ;
-//    visibleRange.location = minKey;
-//    visibleRange.length = maxKey-minKey;
-//    // Always create from the super array with all data
-//    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
-//   
-//    [self drawShapeLayer];
-    
+
     
     //    NSLog(@"translating view ");
 //    CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
@@ -485,10 +445,8 @@
 //    [CATransaction commit];
 //    [shapeLayer addAnimation:animatePath forKey:nil];
     
-
-    NSLog(@"keys in between %d, translation %f", keysInbetween, translation);
-    NSLog(@"translation %f, min = %d,max =  %d", translation, minKey, maxKey);
-
+    
+    [self highlightFocus];
     
     //    NSLog(@"new position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
     
