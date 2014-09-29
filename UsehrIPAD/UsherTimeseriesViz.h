@@ -49,7 +49,7 @@ typedef enum {
 -(void) setData:(NSMutableDictionary*)data;
 -(void) zoomTo:(float) scale ;
 -(void) adjustYscale;
--(void) panView:(CGPoint) translate;
+-(void) panView:(float) translate;
 -(void) adjustAnchor:(UIGestureRecognizer*) sender;
 -(id) getTouchKey : (UIGestureRecognizer*) sender;
 

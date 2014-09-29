@@ -20,6 +20,7 @@
 
     float zoomScaleCurrent;
     float scale;
+    float translate;
 }
 
 -(void) viewDidLoad
@@ -105,13 +106,19 @@
 -(void) screenPan: (UIPanGestureRecognizer *)sender {
     
    if (sender.state==UIGestureRecognizerStateBegan) {
-        NSLog(@" pannig ");
-//		 [self.timeseriesView.mainViz adjustAnchor: sender];
+   
+       translate = [sender translationInView:(UIView*)self.timeseriesView.mainViz].x;
+       NSLog(@" pannig translation in view %f", translate);
+       if(fabs(translate)>0.0)
+           [self.timeseriesView.mainViz panView:translate];
 	}
 	else if (sender.state==UIGestureRecognizerStateChanged) {
    
-       CGPoint translate =[sender translationInView:(UIView*)self.timeseriesView];
-        [self.timeseriesView.mainViz panView:translate];
+       CGPoint translatenow =[sender translationInView:(UIView*)self.timeseriesView.mainViz];
+       float delta = translatenow.x-translate;
+        NSLog(@" pannig delta %f", delta);
+        if(fabs(delta)>0.0)
+                [self.timeseriesView.mainViz panView:delta];
         
 	}else if(sender.state==UIGestureRecognizerStateEnded){
         
