@@ -19,6 +19,7 @@
     float translation;
     float yScale;
     NSMutableArray* points; // points visible on screen.
+    NSMutableArray* focusPoints;
     float eachWidth;
     float max;
     float height;
@@ -46,7 +47,6 @@
 
 - (void)drawRect:(CGRect)rect {
     
-    
     [[UIColor whiteColor] setFill];
     UIRectFill(rect);
     [super drawRect:rect];
@@ -60,7 +60,7 @@
 }
 
 -(void) drawShapeLayer {
-
+    
     float x=0.0;
     int i=0;
     //or the max can be the max of the visible values
@@ -93,16 +93,16 @@
 
 
 -(void) highlightFocus {
-
+    
     float maskStartX = minKey*contextLayer.frame.size.width/[dataPoints count];
     float maskEndX = maxKey*contextLayer.frame.size.width/[dataPoints count];
     float focusWidth = maskEndX-maskStartX;
     focusLayer.frame = CGRectMake(maskStartX, 0, focusWidth,contextLayer.frame.size.height);
-
+    
 }
 
 -(void) drawYaxis {
-
+    
     CAShapeLayer *line = [CAShapeLayer layer];
     UIBezierPath *linePath=[UIBezierPath bezierPath];
     [linePath moveToPoint: CGPointMake(axisWidth-0.5, 0.0)];
@@ -134,48 +134,46 @@
         label.position = CGPointMake(x,y);
         [label setFrame:CGRectMake(x, y-10, 20, 10)];
         label.foregroundColor = [UIColor blackColor].CGColor;
-//        label.string = [NSString stringWithFormat:@"%f",[[dataPoints objectForKey:ky] floatValue]];
-//        NSLog(@"%@, %f, %f", label.string, label.position.x, label.position.y);
+        //        label.string = [NSString stringWithFormat:@"%f",[[dataPoints objectForKey:ky] floatValue]];
+        //        NSLog(@"%@, %f, %f", label.string, label.position.x, label.position.y);
         [label setFontSize:10.0];
         [line addSublayer:label];
         
     }
-
-
+    
+    
 }
 
 -(void) drawLayers{
     
-    
     int i =0;
     float x=0.0;
     float widthPerPoint = roundf((shapeLayer.frame.size.width)/([dataPoints count] +1));
-    
+    focusPoints = [[NSMutableArray alloc] init];
     //draw context layer
     for(id ky in sortedKeys){
         x = [ky floatValue]*widthPerPoint; // + translation - center.x
         //        NSLog(@"keys: %d, position %f ", [ky intValue], x);
         float y = (max-[[dataPoints objectForKey:ky] floatValue])*(contextLayer.frame.size.height/max);
-        [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
+        [focusPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
         i++;
     }
-   [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,contextLayer.frame.size.height)] atIndexedSubscript:i];
-    NSValue *val = [points objectAtIndex:0];
+    [focusPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,contextLayer.frame.size.height)] atIndexedSubscript:i];
+    NSValue *val = [focusPoints objectAtIndex:0];
     CGPoint point = [val CGPointValue];
     
-    chart = [UIBezierPath bezierPath];
+    UIBezierPath* chartFocus = [UIBezierPath bezierPath];
     //    [chart setLineJoinStyle:kCALineJoinRound];
-    [chart moveToPoint:CGPointMake(0.0, contextLayer.frame.size.height)];
+    [chartFocus moveToPoint:CGPointMake(0.0, contextLayer.frame.size.height)];
     //creating the path
     for(int j = 0; j<=i; j++){
-        val = [points objectAtIndex:j];
+        val = [focusPoints objectAtIndex:j];
         point = [val CGPointValue];
         //        NSLog(@"x: %f, y %f ", point.x, point.y);
-        [chart  addLineToPoint:point];
+        [chartFocus  addLineToPoint:point];
     }
-    [chart closePath];
-    contextLayer.path = chart.CGPath;
-    
+    [chartFocus closePath];
+    contextLayer.path = chartFocus.CGPath;
     
     float maskStartX = minKey*contextLayer.frame.size.width/[dataPoints count];
     float maskEndX = maxKey*contextLayer.frame.size.width/[dataPoints count];
@@ -188,14 +186,11 @@
     focusLayer.backgroundColor = [UIColor blueColor].CGColor;
     [contextLayer addSublayer:focusLayer];
     
-
-    
     [self drawShapeLayer];
-    
     
     [self drawYaxis];
     
-   
+    
 }
 
 
@@ -263,15 +258,15 @@
     axisLayer = [CALayer layer];
     [axisLayer setBounds:CGRectMake(0.0, 0.0, axisWidth, [self frame].size.height- contextHeight)];
     [axisLayer setPosition: CGPointMake((axisWidth/2),
-                                         (self.frame.size.height-contextHeight)/2)];
+                                        (self.frame.size.height-contextHeight)/2)];
     focusLayer = [CALayer layer];
     
     [self.layer addSublayer:shapeLayer];
     [self.layer addSublayer:contextLayer];
     [self.layer addSublayer:axisLayer];
     
-//    [self drawLayers];
-   
+    //    [self drawLayers];
+    
     NSLog(@"initial position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
     NSLog(@"initial anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
     [self setNeedsDisplay];
@@ -280,8 +275,8 @@
 
 -(void) adjustAnchor:(UIGestureRecognizer*) sender {
     NSLog(@"adjusting anchor");
-//    NSLog(@"old position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
-//    NSLog(@"old anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
+    //    NSLog(@"old position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
+    //    NSLog(@"old anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
     
     if (sender.state == UIGestureRecognizerStateBegan) {
         UIView *piece = (UIView*)self;
@@ -297,133 +292,81 @@
 -(void) zoomTo:(float) scalez {
     
     //TODO:zoom should be centered around the touch point
-   
-    zooming = YES;
     scale = scalez; // new scale
-
+    
     int oldLength= (int)(shapeLayer.frame.size.width/(eachWidth));;
     int newLength = (int)(shapeLayer.frame.size.width/(scale*eachWidth)); // New visible length from currently visible keys
     float anchorPoint = (center.x/shapeLayer.frame.size.width); // considering only scaling, and no pannig
     anchorKey = minKey+(int)((anchorPoint)*oldLength);
     
     int newMinKey = anchorKey-(center.x-0.0)/(eachWidth*scale);
-    NSLog(@"alternate min key %d", newMinKey);
-
+    NSLog(@" min key %d", newMinKey);
+    
     int newMaxKey= newMinKey+(shapeLayer.frame.size.width)/(eachWidth*scale);
-    NSLog(@"alternate max key %d", newMaxKey);
+    NSLog(@" max key %d", newMaxKey);
     
     //calculate new min and max keys
-//    int newMinKey = anchorKey - (newLength)*anchorPoint;
-//    int newMaxKey = anchorKey + (newLength)*(1.0-anchorPoint);
+    //    int newMinKey = anchorKey - (newLength)*anchorPoint;
+    //    int newMaxKey = anchorKey + (newLength)*(1.0-anchorPoint);
     
     NSLog(@"scale %f,new min %d, new max %d", scale, newMinKey, newMaxKey);
+    int p = 0;
+    //scale = 'c', anchor point 'a', new point for point x , is: c*x+(1-c)*a//
+    for(int i = newMinKey; i<=newMaxKey; i++){
+        id ky= [NSNumber numberWithInt:i];
+        if([dataPoints objectForKey:ky]!=NULL){
+            float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
+            x = scale*x + (1-scale)*center.x; // center.x is the anchor point
+            float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+            [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
+            p++;
+        }
+    }
+    
     
     if(newMinKey<0) {
         newMinKey = 0;
     }
-
+    
     if(newMaxKey > ([dataPoints count]-1)){
         newMaxKey = [dataPoints count]-1;
     }
     
-//    int startIndex = newMinKey, endIndex = newMaxKey;
-//    eachWidth *= scale;
-//    int p = 0;
-    
-    //scale = 'c', anchor point 'a', new point for point x , is: c*x+(1-c)*a//
-      for(int i = newMinKey; i<= newMaxKey; i++){
-        id ky= [NSNumber numberWithInt:i];
-        float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
-        x = scale*x + (1-scale)*center.x; // center.x is the anchor point
-        //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-        float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
-        [points setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:i];
-//        p++;
-    }
-    
-    
-    /*
-     NSMutableArray* newPoints = [[NSMutableArray alloc] init];
-    //zoom out, new points may be added
-    if(newMinKey<minKey){
-        for(int i = newMinKey; i<minKey; i++){
-            id ky= [NSNumber numberWithInt:i];
-            float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
-            x = scale*x + (1-scale)*center.x; // center.x is the anchor point
-            //NSLog(@"keys: %d, position %f ", [ky intValue], x);
-            float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
-            [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
-            p++;
-        }
-    }
-    
-    if((oldLength>newLength)){
-        //zoom in, no new point will be added
-        
-        for(int i = newMinKey; i< newMaxKey; i++){
-            id ky= [NSNumber numberWithInt:i];
-            float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
-            x = scale*x + (1-scale)*center.x; // center.x is the anchor point
-            //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-            float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
-            [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
-            p++;
-            
-        }
-    }
-    if(newMaxKey<maxKey){
-        //zoom out, new points may be added
-        for(int i = maxKey; i< newMaxKey; i++){
-            
-            id ky= [NSNumber numberWithInt:i];
-            float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
-            x = scale*x + (1-scale)*center.x; // center.x is the anchor point
-            //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-            float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
-            [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
-            p++;
-            }
-       }
-    
-    */
-    
-    
-    
-    NSLog(@"old length= %d,  new length %d", oldLength, newLength);
-        
-    NSValue *val = [points objectAtIndex:0];
-    CGPoint point = [val CGPointValue];
-        
-    chart = [UIBezierPath bezierPath];
-        //    [chart setLineJoinStyle:kCALineJoinRound];
-        [chart moveToPoint:CGPointMake(0.0, height)];
-        //creating the path
-    for(int j = 0; j< newLength; j++){
-            val = [points objectAtIndex:j];
-            point = [val CGPointValue];
-            //        NSLog(@"x: %f, y %f ", point.x, point.y);
-            [chart  addLineToPoint:point];
-        }
-    
-    
-    shapeLayer.path = chart.CGPath;
     minKey= newMinKey;
     maxKey = newMaxKey;
     eachWidth *= scale;
     
-//    [self drawShapeLayer];
-
+    NSLog(@"old length= %d,  new length %d, new length from keys %d ", oldLength, newLength, (maxKey-minKey) );
+    
+    NSValue *val = [points objectAtIndex:0];
+    CGPoint point = [val CGPointValue];
+    
+    chart = [UIBezierPath bezierPath];
+    [chart moveToPoint:CGPointMake(0.0, height)];
+    //creating the path
+    for(int j = 0; j<(maxKey-minKey) ; j++){
+        val = [points objectAtIndex:j];
+        point = [val CGPointValue];
+        //        NSLog(@"x: %f, y %f ", point.x, point.y);
+        [chart  addLineToPoint:point];
+    }
+    
+    
+    shapeLayer.path = chart.CGPath;
+    
+    
+    
 }
 
 
 -(void) panView:(float) translate{
-  
+    
     NSLog(@"before translation: min = %d,max =  %d", minKey, maxKey);
     translation = -translate;
     int keysInbetween = (int)((fabs(translation/eachWidth)));
     NSLog(@"keys in between %d, translation %f", keysInbetween, translation);
-//    int totalKeys = (int)((shapeLayer.bounds.size.width+fabs(translation))/eachWidth);//previous visible keys+ keysinbetween, roughly
-
+    //    int totalKeys = (int)((shapeLayer.bounds.size.width+fabs(translation))/eachWidth);//previous visible keys+ keysinbetween, roughly
+    
     if(translation>0 && keysInbetween>0) { //add new points to the right side of the path, shoft left
         NSLog(@"new max ");
         //alternative approach, draw the entire path again//
@@ -448,37 +391,37 @@
         shapeLayer.path = chart.CGPath;
         maxKey = endkey;//MIN(newMax,[dataPoints count]-1);
         minKey = minKey+ keysInbetween;
-       
+        
         if(minKey<0) {
             minKey = 0;
         }
         
         NSLog(@"after translation min = %d,max =  %d",  minKey, maxKey);
-      
-   } else if( translation < 0 && keysInbetween>0) { //add new points to the right side of the path
-            //add new points to the right side of the path, shoft left
+        
+    } else if( translation < 0 && keysInbetween>0) { //add new points to the right side of the path
+        //add new points to the right side of the path, shoft left
         NSLog(@"new min");
         //alternative approach, draw the entire path again//
         int newMin = minKey-keysInbetween; //keep the old min
         float x=0.0;
         chart = [UIBezierPath bezierPath];
         int startkey = MAX(newMin,0);
-       
+        
         id ky = [NSNumber numberWithInt:startkey]; // what if there is no such keys?
         float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
         [chart  moveToPoint:CGPointMake(0,y)];
-
+        
         //    [chart setLineJoinStyle:kCALineJoinRound];
         [chart moveToPoint:CGPointMake(0.0, height)];
         //or the max can be the max of the visible values
         for(int k = startkey; k<= maxKey; k++){
-                id ky= [NSNumber numberWithInt:k];//what if there is no such keys ?
-                x = ([ky intValue]- newMin)*(eachWidth);
-                //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
-                float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
-                [chart  addLineToPoint:CGPointMake(x,y)];
+            id ky= [NSNumber numberWithInt:k];//what if there is no such keys ?
+            x = ([ky intValue]- newMin)*(eachWidth);
+            //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
+            float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+            [chart  addLineToPoint:CGPointMake(x,y)];
         }
-
+        
         shapeLayer.path = chart.CGPath;
         minKey = startkey;
         maxKey = maxKey-keysInbetween;
@@ -488,21 +431,9 @@
         }
         NSLog(@"after translation min = %d,max =  %d",  minKey, maxKey);
         
-   }
-
+    }
     
-    //    NSLog(@"translating view ");
-//    CABasicAnimation *animatePath = [CABasicAnimation animationWithKeyPath:@"transform"];
-//    [animatePath setFromValue: [NSValue valueWithCATransform3D:shapeLayer.transform]];//identity or shapeLayer.transform
-//    [animatePath setToValue:   [NSValue valueWithCATransform3D:CATransform3DTranslate(shapeLayer.transform, translation, 0.0, 0.0) ]];
-//    [animatePath setDuration:0.2];
-//    [CATransaction begin];
-//    [CATransaction setDisableActions:YES];
     shapeLayer.transform = CATransform3DTranslate(shapeLayer.transform, -translation, 0.0, 0.0);
-//    [CATransaction commit];
-//    [shapeLayer addAnimation:animatePath forKey:nil];
-    
-    
     [self highlightFocus];
     
     //    NSLog(@"new position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
@@ -510,32 +441,21 @@
 }
 
 -(id) getTouchKey : (UIGestureRecognizer*) sender{
-        UIView *piece = (UIView*)self;
-        center  = [sender locationInView:piece]; // new Anchor point
-        NSLog(@"center %f", center.x);
-        center = CGPointMake(center.x- axisWidth, center.y);
-        NSLog(@"after re adjusting fro y-axis center %f", center.x);
-        float anchorData = (center.x/shapeLayer.bounds.size.width)*[dataPoints count]; // considering only scaling, and no pannig
-        id anchorKey = [NSNumber numberWithInt:(int)(anchorData)];
-//        id allValue = [allData objectForKey:anchorKey];
-//        NSLog(@"anchor data point value: %@, for key: %@", allValue, anchorKey);
+    UIView *piece = (UIView*)self;
+    center  = [sender locationInView:piece]; // new Anchor point
+    NSLog(@"center %f", center.x);
+    center = CGPointMake(center.x- axisWidth, center.y);
+    NSLog(@"after re adjusting fro y-axis center %f", center.x);
+    float anchorData = (center.x/shapeLayer.bounds.size.width)*[dataPoints count]; // considering only scaling, and no pannig
+    id anchor = [NSNumber numberWithInt:(int)(anchorData)];
+    //        id allValue = [allData objectForKey:anchorKey];
+    //        NSLog(@"anchor data point value: %@, for key: %@", allValue, anchorKey);
     
-    return anchorKey;
-
-
-}
+    return anchor;
     
-    
--(void) visibleData {
-//    float visible = 100.00/scale;
-//    int visibleLength = (int)(roundf([dataPoints count]*1.00/scale));
-//    float anchorData = (center.x/shapeLayer.bounds.size.width)*[dataPoints count]; // considering only scaling, and no pannig
-//    id anchorKey = [NSNumber numberWithInt:(int)(anchorData)];
-//    id value = [dataPoints objectForKey:anchorKey];
-//    id allValue = [allData objectForKey:anchorKey];
-//    NSLog(@"anchor data point value: %@, for key: %@", allValue, anchorKey);
     
 }
+
 
 //TODO:need to call it after panning, too
 -(void) adjustYscale {
@@ -596,6 +516,54 @@
     //path creation done, now add this path as the path of the shape layer
     
     
+}
+
+-(void) zoomLaternate{
+    
+    /*
+     NSMutableArray* newPoints = [[NSMutableArray alloc] init];
+     //zoom out, new points may be added
+     if(newMinKey<minKey){
+     for(int i = newMinKey; i<minKey; i++){
+     id ky= [NSNumber numberWithInt:i];
+     float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
+     x = scale*x + (1-scale)*center.x; // center.x is the anchor point
+     //NSLog(@"keys: %d, position %f ", [ky intValue], x);
+     float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+     [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
+     p++;
+     }
+     }
+     
+     if((oldLength>newLength)){
+     //zoom in, no new point will be added
+     
+     for(int i = newMinKey; i< newMaxKey; i++){
+     id ky= [NSNumber numberWithInt:i];
+     float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
+     x = scale*x + (1-scale)*center.x; // center.x is the anchor point
+     //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
+     float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+     [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
+     p++;
+     
+     }
+     }
+     if(newMaxKey<maxKey){
+     //zoom out, new points may be added
+     for(int i = maxKey; i< newMaxKey; i++){
+     
+     id ky= [NSNumber numberWithInt:i];
+     float x = ([ky intValue]- minKey)*(eachWidth); // old value of x
+     x = scale*x + (1-scale)*center.x; // center.x is the anchor point
+     //            NSLog(@"keys: %d, position %f ", [ky intValue], x);
+     float y = (max-[[dataPoints objectForKey:ky] floatValue])*(height/max);
+     [newPoints setObject:[NSValue valueWithCGPoint:CGPointMake(x,y)] atIndexedSubscript:p];
+     p++;
+     }
+     }
+     
+     */
 }
 
 @end
