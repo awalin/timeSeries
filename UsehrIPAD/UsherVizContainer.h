@@ -9,13 +9,16 @@
 #import <UIKit/UIKit.h>
 @class UsherTimeseriesViz;
 @class UsherTimeSeries;
+@class UsherIPADTooltipContent;
 //super class for all sorts of visualization
-@interface UsherVizContainer : UIView
+@interface UsherVizContainer : UIView <UIPopoverControllerDelegate>
 
 
 @property IBOutlet UIView* xAxis;
 @property IBOutlet UIView* yAxis;
 @property IBOutlet UsherTimeseriesViz* mainViz;
+
+@property UIPopoverController* popOverController;
 //@property IBOutlet UIView* legend;
 
 

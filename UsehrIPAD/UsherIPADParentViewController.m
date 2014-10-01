@@ -66,24 +66,11 @@
 
 -(void) showTooltip: (UITapGestureRecognizer*) sender {
     if (sender.state == UIGestureRecognizerStateEnded) {
-       
-        if(!self.popOverController){
-                
-            UsherIPADTooltipContent* tooltip  = [[UsherIPADTooltipContent alloc] init];
-            CGPoint touchPoint =  [sender locationInView:self.timeseriesView.mainViz];
-            
-            [self.timeseriesView showTooltip:sender];
-            
-            self.popOverController = [[UIPopoverController alloc] initWithContentViewController:tooltip];
-            self.popOverController.delegate = self;
-            self.popOverController.backgroundColor=[UIColor colorWithRed:0.2 green:0.2 blue:0.22 alpha:0.8];
-            
-            [self.popOverController presentPopoverFromRect:CGRectMake(touchPoint.x, touchPoint.y, 1, 1)
-                                                    inView: self.timeseriesView.mainViz
-                                  permittedArrowDirections:UIPopoverArrowDirectionAny
-                                                  animated:YES];
-        }
-    }
+        
+        [self.timeseriesView showTooltip:sender];
+    
+        
+   }
 
 
 }

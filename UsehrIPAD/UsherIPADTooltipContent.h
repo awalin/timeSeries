@@ -10,4 +10,7 @@
 
 @interface UsherIPADTooltipContent : UIViewController
 
+
+
+-(void) createContent:(int) tot forDate:(NSString*)_date;
 @end
