@@ -116,6 +116,8 @@
     
     [self drawLabels];
     
+
+    
 }
 
 -(void) drawLabels{
@@ -150,6 +152,7 @@
 -(void) drawLayers{
     
     int i =0;
+    labelCount = 10;
     float x=0.0;
     float widthPerPoint = roundf((shapeLayer.frame.size.width)/([dataPoints count] +1));
     focusPoints = [[NSMutableArray alloc] init];
@@ -189,7 +192,7 @@
     focusLayer.backgroundColor = [UIColor blueColor].CGColor;
     [contextLayer addSublayer:focusLayer];
     [self drawShapeLayer];
-    [self drawYaxis];
+   [self drawYaxis];
     
     
 }
@@ -203,6 +206,7 @@
     translation = 0.0;
     contextHeight = 40.0;
     axisWidth = 30.0;
+    labelCount = 10;
     
     points = [[NSMutableArray alloc] init];
     dataPoints = [[NSMutableDictionary alloc] init];
@@ -266,9 +270,7 @@
     [self.layer addSublayer:shapeLayer];
     [self.layer addSublayer:contextLayer];
     [self.layer addSublayer:axisLayer];
-    
-    //    [self drawLayers];
-    
+
     NSLog(@"initial position, %f , %f ", shapeLayer.position.x, shapeLayer.position.y);
     NSLog(@"initial anchor, %f , %f ", shapeLayer.anchorPoint.x, shapeLayer.anchorPoint.y);
     [self setNeedsDisplay];
@@ -315,6 +317,15 @@
     NSLog(@" anchor point %f , Key %d", anchorPoint, anchorKey);
     float oldMax = max;
     float oldMin = min;
+    
+    NSRange visibleRange ;
+    visibleRange.location = MAX(0, newMinKey);
+    int last = MIN(newMaxKey, [dataPoints count]-1) - visibleRange.location;
+    visibleRange.length = last; // length of visible points
+    //    // Always create from the super array with all data
+    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
+    // now change the y-axis with animation
+    
     max = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue]; // the new max height
     min = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@min.self"] floatValue]; // the new max height
     
@@ -339,17 +350,7 @@
     length = p;// (maxKey-minKey)
     
     NSLog(@"length %d ", length);
-    
-    NSRange visibleRange ;
-    visibleRange.location = MAX(0, minKey);
-    visibleRange.length = length;    //    // Always create from the super array with all data
-    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
-    // now change the y-axis with animation
-    
-   
-
-    
-    NSValue *val = [points objectAtIndex:0];
+   NSValue *val = [points objectAtIndex:0];
     CGPoint point = [val CGPointValue];
     chart = [UIBezierPath bezierPath];
     [chart moveToPoint:CGPointMake(point.x, point.y)];
@@ -401,9 +402,14 @@
     // now change the y-axis with animation
     float oldMax = max;
     float oldMin = min;
-
+    
+    NSRange visibleRange ;
+    visibleRange.location = MAX(0, newMin);
+    int last = MIN(newMax, [dataPoints count]-1) - visibleRange.location;
+    visibleRange.length = last; // length of visible points
     max = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue]; // the new max height
     min = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@min.self"] floatValue]; // the new max height
+    
     int p = 0;
     //    //scale = 'c', anchor point 'a', new point for point x , is: c*x+(1-c)*a//
         for(int i = newMin; i<=newMax; i++){
@@ -422,16 +428,7 @@
     length = p;
     NSLog(@"after translation min = %d,max =  %d",  minKey, maxKey);
     
-    NSRange visibleRange ;
-    visibleRange.location = MAX(0, minKey);
-    visibleRange.length = length;    //    // Always create from the super array with all data
-    visibleKeys = (NSMutableArray*)[sortedKeys subarrayWithRange:visibleRange] ;
-    // now change the y-axis with animation
-  
-    max = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@max.self"] floatValue]; // the new max height
-    min = [[[dataPoints objectsForKeys:visibleKeys notFoundMarker:@"0"] valueForKeyPath: @"@min.self"] floatValue]; // the new max height
     
-
     NSLog(@"length %d ", length);
     
     NSValue *val = [points objectAtIndex:0];
